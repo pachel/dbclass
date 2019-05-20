@@ -4,10 +4,12 @@
  * Created by László Tóth
  */
 
-namespace pachel\dbClass;
+namespace Pachel\dbClass;
 
-
-class dbClass extends \PDO
+class dbClass
 {
-
+    public function __construct()
+    {
+        echo "akjs";
+    }
 }

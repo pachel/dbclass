@@ -1,0 +1,22 @@
+{
+    "name": "pachel/dbclass",
+    "description": "DBclass for mysql",
+    "type": "library",
+    "license": "CC-BY-1.0",
+    "homepage": "https://github.com/millsoft/aceproject",
+    "authors": [
+        {
+            "name": "Laszlo Toth",
+            "email": "pachel82@gmail.com"
+        }
+    ],
+    "minimum-stability": "dev",
+    "require": {
+
+    },
+    "autoload": {
+
+            "files": ["src/dbClass.php"]
+
+    }
+}
