@@ -2,8 +2,8 @@
     "name": "pachel/dbclass",
     "description": "DBclass for mysql",
     "type": "library",
-    "license": "CC-BY-1.0",
-    "homepage": "https://github.com/millsoft/aceproject",
+    "license": "(LGPL-2.1-only or GPL-3.0-or-later)",
+    "homepage": "https://github.com/pachel/dbclass",
     "authors": [
         {
             "name": "Laszlo Toth",
@@ -15,8 +15,6 @@
         "php": ">=5.6"
     },
     "autoload": {
-
             "files": ["src/dbClass.php"]
-
     }
 }
