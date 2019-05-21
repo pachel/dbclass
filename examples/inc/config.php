@@ -18,8 +18,8 @@ $db_config = [
     "host" => "localhost",
     "dbname" => "dbclass_test",
     "charset" => "utf8",
-    "username" => "root",
-    "password" => ""
+    "username" => "dbclass",
+    "password" => "dbclass"
 ];
 
 return new dbClass($db_config,$db_options);
