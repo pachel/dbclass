@@ -16,7 +16,7 @@ $db_options = array(
 );
 $db_config = [
     "host" => "localhost",
-    "dbname" => "test",
+    "dbname" => "dbclass_test",
     "charset" => "utf8",
     "username" => "root",
     "password" => ""
