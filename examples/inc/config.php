@@ -22,4 +22,6 @@ $db_config = [
     "password" => "dbclass"
 ];
 
-dbClass::instance()->connect($db_config,$db_options);
+//dbClass::instance()->connect($db_config,$db_options);
+$db = new dbClass();
+$db->connect($db_config,$db_options);

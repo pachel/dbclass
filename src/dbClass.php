@@ -7,16 +7,17 @@
 namespace Pachel;
 
 
-class dbClass extends \Prefab
+class dbClass
 {
     protected $db_username = "",$db_password = "",$db_dsn = "";
 
     protected $pdo;
+
+
+    use fatfree;
     /**
      *
      */
-
-
     public function connect($db_config,$db_options = [])
     {
         $this->check_db_config($db_config);
@@ -220,4 +221,3 @@ class dbClass extends \Prefab
         $this->disconnect();
     }
 }
-return dbClass::instance();

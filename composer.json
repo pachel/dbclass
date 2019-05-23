@@ -10,16 +10,10 @@
             "email": "pachel82@gmail.com"
         }
     ],
-    "repositories" :[
-        {
-            "type" : "git",
-            "url" : "git@github.com:pachel/prefab.git"
-        }
-    ],
     "minimum-stability": "stable",
     "require": {
         "php": ">=5.6",
-        "pachel/prefab": "1.*"
+        "bcosca/fatfree": "^3.6"
     },
     "autoload": {
             "classmap": ["src/"]

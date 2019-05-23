@@ -25,22 +25,24 @@ final class datamodell implements datainterface
     }
 
     /**
+     * Select all rows from this table
+     *
      * @param array $data
      * @return mixed
      */
     public function get_all($data = [])
     {
-        // TODO: Implement get_all() method.
         return $this->db->select($this->table);
     }
 
     /**
+     * Select only one row from this table
+     *
      * @param $id
      * @return mixed
      */
     public function get_by_id($id)
     {
-        // TODO: Implement get_by_id() method.
         return $this->db->select($this->table, ["id" => $id])[0];
     }
 
@@ -61,7 +63,6 @@ final class datamodell implements datainterface
      */
     public function update($data, $id)
     {
-        // TODO: Implement update() method.
         $this->db->update($this->table, $id);
     }
 
@@ -71,7 +72,6 @@ final class datamodell implements datainterface
      */
     public function insert($data)
     {
-        // TODO: Implement insert() method.
         return $this->db->insert($this->table, $data);
     }
 
@@ -81,7 +81,6 @@ final class datamodell implements datainterface
      */
     public function delete($id)
     {
-        // TODO: Implement delete() method.
         return $this->db->delete($this->table, $id);
     }
 }
