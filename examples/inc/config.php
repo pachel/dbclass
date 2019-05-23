@@ -18,8 +18,8 @@ $db_config = [
     "host" => "localhost",
     "dbname" => "dbclass_test",
     "charset" => "utf8",
-    "username" => "root",
-    "password" => ""
+    "username" => "dbclass",
+    "password" => "dbclass"
 ];
 
 dbClass::instance()->connect($db_config,$db_options);
