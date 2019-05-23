@@ -6,7 +6,7 @@
  * Time: 10:33
  */
 
-use Pachel\dbClass\dbClass;
+use Pachel\dbClass;
 
 $db_options = array(
     \PDO::MYSQL_ATTR_COMPRESS   => true,
@@ -22,4 +22,4 @@ $db_config = [
     "password" => ""
 ];
 
-return new dbClass($db_config,$db_options);
+dbClass::instance()->connect($db_config,$db_options);

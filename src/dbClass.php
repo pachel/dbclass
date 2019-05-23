@@ -4,38 +4,29 @@
  * Created by László Tóth
  */
 
-namespace Pachel\dbClass;
+namespace Pachel;
 
-class dbClass extends \PDO
+
+class dbClass extends \Prefab
 {
     protected $db_username = "",$db_password = "",$db_dsn = "";
-    public function __construct($db_config,$db_options = [])
+
+    protected $pdo;
+    /**
+     *
+     */
+
+
+    public function connect($db_config,$db_options = [])
     {
         $this->check_db_config($db_config);
-        parent::__construct($this->db_dsn, $this->db_username, $this->db_password, $db_options);
+        $this->pdo = new \PDO($this->db_dsn, $this->db_username, $this->db_password, $db_options);
+    }
+    public function getModell($name){
+        return new datamodell($name,$this);
     }
 
 
-    /**
-     * Get Data from Database
-     *
-     * @param string      $sql                  : already properly escaped sql string
-     * @param bool|string $field                : array key by field value
-     * @param array       $params               : Set Array of Query Params
-     * @param bool        $useLastSql           : Use last executed Statement
-     * @param bool        $html                 : if values should have encoded html special chars
-     * @param bool|string $groupby              : field name on which result is grouped by
-     * @param bool        $withNumRows          : saves numRows inside parameters if set
-     * @param bool        $doNotCheckDataStatus : if data_status must be contained within where clause
-     * @param bool        $rewriteForViews      : if sql should be rewritten to fetch data from personal view
-     *
-     * @return array|bool (array,array key = id)/false if no value
-     * !special value for field="@flat"; if set, an array result like [column1]=column2 is returned, only possible
-     * for 2 column queries
-     * !special value for field="@simple"; if result is just a single value this value is returned
-     * !special value for field="@line"; only one line is returned
-     * !special value for field="@raw"; all result lines are returned within a numbered index array
-     */
     public function fromDatabase($sql, $params = array(),$field = false)
     {
         if ( !$sql) {
@@ -45,7 +36,7 @@ class dbClass extends \PDO
 
         $resultArray = array();
         $this->check_params($sql,$params);
-        $result = $this->prepare($sql);
+        $result = $this->pdo->prepare($sql);
         $result->execute($params);
 
         if ($field == '@flat') {
@@ -97,7 +88,7 @@ class dbClass extends \PDO
      */
     public function toDatabase($sql, $params = array())
     {
-        $mysql_queryPrepared = $this->prepare($sql);
+        $mysql_queryPrepared = $this->pdo->prepare($sql);
         $mysql_queryReturn = $mysql_queryPrepared->execute($params);
         //do we have a db error?
         $err = $mysql_queryReturn;
@@ -113,7 +104,7 @@ class dbClass extends \PDO
      * @param $table
      * @param $id Wenn das nicht null, dann wird das UPDATE, sonder INSERT
      */
-    public function arrayToDatabase($array,$table,$id = array()){
+    private function arrayToDatabase($array,$table,$id = array()){
         if(!is_array($array)){
             throw new \Exception('$array is not Array()');
         }
@@ -123,6 +114,7 @@ class dbClass extends \PDO
         if(gettype($table)!="string"){
             throw new \Exception('$table parameter type is not string!');
         }
+        $this->check_params($array);
 
         if(sizeof($id) == 0){
             $query = "INSERT INTO `".$table."` (";
@@ -182,7 +174,50 @@ class dbClass extends \PDO
         $this->db_password = $config["password"];
         $this->db_dsn = 'mysql:host=' . $config['host'] . ';dbname=' . $config['dbname'].";charset=" . $config['charset'];
     }
-    private function check_params(&$query,&$params){
+    private function check_params(&$data,&$query = null){
 
     }
+    public function update($table,$data,$where){
+        return $this->arrayToDatabase($data,$table,$where);
+    }
+    public function insert($table,$data){
+        return $this->arrayToDatabase($data,$table);
+    }
+    public function delete($table,$where){
+
+    }
+    public function select($table,$where = "",$fields = "*"){
+        $query = "SELECT ".$fields." FROM `".$table."`";
+        $params = [];
+        if(!empty($where)){
+            $query.=" WHERE ".$this->get_where($where,$params);
+        }
+        return $this->fromDatabase($query,$params);
+    }
+    private function get_where($where,&$params = []){
+        $string = "";
+        if(is_array($where)){
+            $counter = 0;
+            foreach ($where AS $index => $value){
+                if($counter>0){
+                    $string.=" AND ";
+                }
+                $string.="`".$index."`".(is_numeric($value)?"=".$value:" LIKE '".$value."'");
+                $counter++;
+            }
+        }
+        else{
+            $string = $where;
+        }
+        return $string;
+    }
+    public function disconnect(){
+        $this->pdo = null;
+    }
+    public function __destruct()
+    {
+        // TODO: Implement __destruct() method.
+        $this->disconnect();
+    }
 }
+return dbClass::instance();
