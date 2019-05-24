@@ -18,6 +18,13 @@ class dbClass
     /**
      *
      */
+    public function __construct()
+    {
+        $args = func_get_args();
+        if(!empty($arg)){
+            $this->connect($args[0],(!empty($args[1])?$args[1]:[]));
+        }
+    }
     public function connect($db_config,$db_options = [])
     {
         $this->check_db_config($db_config);
@@ -217,7 +224,6 @@ class dbClass
     }
     public function __destruct()
     {
-        // TODO: Implement __destruct() method.
         $this->disconnect();
     }
 }

@@ -8,7 +8,7 @@
 
 namespace Pachel;
 
-final class datamodell implements datainterface
+final class datamodell
 {
     private $table;
     private $db;
