@@ -21,7 +21,7 @@ class dbClass
     public function __construct()
     {
         $args = func_get_args();
-        if(!empty($arg)){
+        if(!empty($args)){
             $this->connect($args[0],(!empty($args[1])?$args[1]:[]));
         }
     }
