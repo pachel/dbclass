@@ -14,10 +14,22 @@ class dbClass
     protected $pdo;
 
 
-    use fatfree;
+    private static $self = null;
+
     /**
      *
      */
+    public static function instance()
+    {
+        if(empty(self::$self)){
+
+            $ref = new \Reflectionclass("Pachel\dbClass");
+            $args = func_get_args();
+            self::$self = ($args ?$ref -> newinstanceargs($args):new dbClass());
+
+        }
+        return self::$self;
+    }
     public function __construct()
     {
         $args = func_get_args();
