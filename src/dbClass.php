@@ -47,12 +47,18 @@ class dbClass
     }
 
 
-    public function fromDatabase($sql, $params = array(),$field = false)
+    public function fromDatabase($sql, $field = NULL,$params = [])
     {
         if ( !$sql) {
             throw new \Exception('sql statement missing!');
         }
 
+
+        if(is_array($field)){
+            $tmp = $params;
+            $params = $field;
+            $field = $tmp;
+        }
 
         $resultArray = array();
         $this->check_params($sql,$params);
