@@ -1,6 +1,5 @@
 <?php
 /**
- * v 1.0
  * Created by László Tóth
  */
 
