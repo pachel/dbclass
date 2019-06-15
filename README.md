@@ -1,10 +1,10 @@
 #dbClass
-##installation
+##Installation
 Install width composer or dowload from this link: https://github.com/pachel/dbclass
 ```
 composer require pachel/dbclass
 ```
-##init
+##Init
 ```
 $params = [
     "host" => "localhost",
