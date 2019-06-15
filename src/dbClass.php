@@ -36,6 +36,13 @@ class dbClass
             $this->connect($args[0],(!empty($args[1])?$args[1]:[]));
         }
     }
+
+    /**
+     *
+     * @param $db_config
+     * @param array $db_options
+     * @throws \Exception
+     */
     public function connect($db_config,$db_options = [])
     {
         $this->check_db_config($db_config);
@@ -45,13 +52,18 @@ class dbClass
         return new datamodell($name,$this);
     }
 
-
+    /**
+     * @param $sql
+     * @param null $field
+     * @param array $params
+     * @return array
+     * @throws \Exception
+     */
     public function fromDatabase($sql, $field = NULL,$params = [])
     {
         if ( !$sql) {
             throw new \Exception('sql statement missing!');
         }
-
 
         if(is_array($field)){
             $tmp = $params;
@@ -60,7 +72,8 @@ class dbClass
         }
 
         $resultArray = array();
-        $this->check_params($sql,$params);
+        $this->check_params($params,$sql);
+     //   echo $sql;
         $result = $this->pdo->prepare($sql);
         $result->execute($params);
 
@@ -179,6 +192,13 @@ class dbClass
 
         return $this->toDatabase($query,$array);
     }
+
+    /**
+     * Check if all parameters exists
+     *
+     * @param $config
+     * @throws \Exception
+     */
     private function check_db_config(&$config){
         $default_config = [
             "host" => "localhost",
@@ -199,18 +219,65 @@ class dbClass
         $this->db_password = $config["password"];
         $this->db_dsn = 'mysql:host=' . $config['host'] . ';dbname=' . $config['dbname'].";charset=" . $config['charset'];
     }
+
+    /**
+     * @param $data
+     * @param null $query
+     */
     private function check_params(&$data,&$query = null){
 
+        foreach ($data AS $index => $item){
+            check:
+            if(preg_match_all("/:".$index."/",$query,$preg)) {
+                if (count($preg[0]) > 1) {
+                    $new_name = $this->get_random_string();
+                    $query = preg_replace("/:" . $index . "/", ":" . $new_name, $query, 1);
+                    $data[$new_name] = $item;
+                    goto check;
+                }
+            }
+        }
+        echo $query;
+        print_r($data);
     }
+
+    /**
+     * @param $table
+     * @param $data
+     * @param $where
+     * @return bool
+     * @throws \Exception
+     */
     public function update($table,$data,$where){
         return $this->arrayToDatabase($data,$table,$where);
     }
+
+    /**
+     * @param $table
+     * @param $data
+     * @return bool
+     * @throws \Exception
+     */
     public function insert($table,$data){
         return $this->arrayToDatabase($data,$table);
     }
-    public function delete($table,$where){
 
+    /**
+     * @param $table
+     * @param $where
+     */
+    public function delete($table,$where){
+        $sql = "DELETE FROM `".$table."` WHERE ".$this->get_where($where);
+        return $this->toDatabase($sql);
     }
+
+    /**
+     * @param $table
+     * @param string $where
+     * @param string $fields
+     * @return array
+     * @throws \Exception
+     */
     public function select($table,$where = "",$fields = "*"){
         $query = "SELECT ".$fields." FROM `".$table."`";
         $params = [];
@@ -219,6 +286,12 @@ class dbClass
         }
         return $this->fromDatabase($query,$params);
     }
+
+    /**
+     * @param $where
+     * @param array $params
+     * @return string
+     */
     private function get_where($where,&$params = []){
         $string = "";
         if(is_array($where)){
@@ -236,11 +309,22 @@ class dbClass
         }
         return $string;
     }
+
+    /**
+     * Connection disconnect
+     */
     public function disconnect(){
         $this->pdo = null;
     }
     public function __destruct()
     {
         $this->disconnect();
+    }
+    private function get_random_string($count = 10,$chars = "qwertzuioplkjhgfdsayxcvbnm0123456789QWERTZUIOPLKJHGFDSAYXCVBNM"){
+        $string = "";
+        for ($x=0;$x<$count;$x++){
+            $string.=substr($chars,mt_rand(0,strlen($chars)),1);
+        }
+        return $string;
     }
 }
