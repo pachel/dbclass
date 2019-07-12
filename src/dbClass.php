@@ -237,8 +237,8 @@ class dbClass
                 }
             }
         }
-        echo $query;
-        print_r($data);
+        //echo $query;
+        //print_r($data);
     }
 
     /**
