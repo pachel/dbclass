@@ -327,4 +327,7 @@ class dbClass
         }
         return $string;
     }
+    public function last_insert_id(){
+        return $this->pdo->lastInsertId();
+    }
 }
