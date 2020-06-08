@@ -130,9 +130,10 @@ class dbClass
         $mysql_queryReturn = $mysql_queryPrepared->execute($params);
         //do we have a db error?
         $err = $mysql_queryReturn;
-        if ( !$err) {
+         if ( !$err) {
             //error occured, show the error:
-            throw new \Exception("Error");
+            $error = $mysql_queryPrepared->errorInfo();            
+            throw new \Exception("MYSQL ERROR: ".$error[2]."\n");
         }
         return (true);
 
