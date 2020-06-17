@@ -77,10 +77,10 @@ class dbClass
         $result = $this->pdo->prepare($sql);
         $result->execute($params);
 
-        if ($field == '@flat') {
+       if ($field == '@flat') {
             if ($result->rowCount()) {
-                while ($temp = $result->fetch(\PDO::FETCH_ASSOC)) {
-                    $resultArray[$temp[0]] = $temp[1];
+                while ($temp = $result->fetch(\PDO::FETCH_NUM)) {
+                    $resultArray[] = $temp;
                 }
                 return ($resultArray);
             } else {
