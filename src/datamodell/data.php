@@ -70,7 +70,7 @@ final class datamodell
      * @param $data
      * @return mixed
      */
-    public function insert($data)
+    public function insert($data,&$id=0)
     {
         return $this->db->insert($this->table, $data);
     }

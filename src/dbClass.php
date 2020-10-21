@@ -106,6 +106,14 @@ class dbClass {
                 return ($resultArray);
             }
         }
+        if ($field == '@array' && $id!=null) {
+            if ($result->rowCount()) {
+                while ($temp = $result->fetch(\PDO::FETCH_NUM)) {
+                    $resultArray[] = $temp[0];                    
+                }
+                return ($resultArray);
+            }
+        }
         $i = 0;
         if ($result->rowCount()) {
             while ($temp = $result->fetch(\PDO::FETCH_ASSOC)) {
