@@ -106,7 +106,7 @@ class dbClass {
                 return ($resultArray);
             }
         }
-        if ($field == '@array' && $id!=null) {
+        if ($field == '@array') {
             if ($result->rowCount()) {
                 while ($temp = $result->fetch(\PDO::FETCH_NUM)) {
                     $resultArray[] = $temp[0];                    
