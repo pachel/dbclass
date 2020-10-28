@@ -47,9 +47,9 @@ class dbClass {
         return new datamodell($name, $this);
     }
 
-    public function callModell($className) {
+    public function callModell($className,$param) {
         $r = new ReflectionClass($className);
-        $obj = $r->newInstanceArgs($this);
+        $obj = $r->newInstanceArgs([$this,$param]);
         return $r;
     }
 
