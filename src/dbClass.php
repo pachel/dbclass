@@ -47,6 +47,12 @@ class dbClass {
         return new datamodell($name, $this);
     }
 
+    public function callModell($className) {
+        $r = new ReflectionClass($className);
+        $obj = $r->newInstanceArgs($this);
+        return $r;
+    }
+
     /**
      * @param $sql
      * @param null $field
@@ -98,10 +104,10 @@ class dbClass {
                 return [];
             }
         }
-        if ($field == '@group' && $id!=null) {
+        if ($field == '@group' && $id != null) {
             if ($result->rowCount()) {
                 while ($temp = $result->fetch(\PDO::FETCH_ASSOC)) {
-                    $resultArray[$temp[$id]] = $temp;                    
+                    $resultArray[$temp[$id]] = $temp;
                 }
                 return ($resultArray);
             }
@@ -109,7 +115,7 @@ class dbClass {
         if ($field == '@array') {
             if ($result->rowCount()) {
                 while ($temp = $result->fetch(\PDO::FETCH_NUM)) {
-                    $resultArray[] = $temp[0];                    
+                    $resultArray[] = $temp[0];
                 }
                 return ($resultArray);
             }
@@ -122,7 +128,7 @@ class dbClass {
             }
             return ($resultArray);
         }
-                
+
 
         return [];
     }
