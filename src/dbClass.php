@@ -48,9 +48,10 @@ class dbClass {
     }
 
     public function callModell($className,$param) {
-        $r = new ReflectionClass($className);
+        
+        $r = new \ReflectionClass($className);
         $obj = $r->newInstanceArgs([$this,$param]);
-        return $r;
+        return $obj;
     }
 
     /**
