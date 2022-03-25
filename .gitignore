@@ -2,5 +2,6 @@
 vendor/
 composer.lock
 temp
-/nbproject/private/
+nbproject/
 inc/config.php
+local/
