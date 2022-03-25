@@ -5,3 +5,4 @@ temp
 nbproject/
 inc/config.php
 local/
+.htaccess

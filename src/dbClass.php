@@ -4,33 +4,39 @@
  * Created by László Tóth
  */
 
-namespace Pachel;
+namespace Pachel\DbClass;
 
-class dbClass {
 
-    protected $db_username = "", $db_password = "", $db_dsn = "";
-    protected $pdo;
-    private static $self = null;
+
+
+
+class Base
+{
+    /**
+     * @var \PDO
+     */
+    protected \PDO  $pdo;
+    /**
+     * @var Base|null
+     */
+    private static ?Base $self = null;
 
     /**
-     *
+     * @return Base
      */
-    public static function instance() {
+    public static function instance():Base
+    {
         if (empty(self::$self)) {
-
-            $ref = new \Reflectionclass("Pachel\dbClass");
-            $args = func_get_args();
-            self::$self = ($args ? $ref->newinstanceargs($args) : new dbClass());
+            self::$self = new Base();
         }
         return self::$self;
     }
-//*asdasdasd
-//asdasd
-    public function __construct() {
-        $args = func_get_args();
-        if (!empty($args)) {
-            $this->connect($args[0], (!empty($args[1]) ? $args[1] : []));
+    public function __construct()
+    {
+        if(!function_exists("db_config")){
+            new Exception("db_config() is not defined!");
         }
+        $this->connect(db_config());
     }
 
     /**
@@ -39,19 +45,21 @@ class dbClass {
      * @param array $db_options
      * @throws \Exception
      */
-    public function connect($db_config, $db_options = []) {
-        $this->check_db_config($db_config);
-        $this->pdo = new \PDO($this->db_dsn, $this->db_username, $this->db_password, $db_options);
+    public function connect($db_config):void
+    {
+        $this->pdo = new \PDO($db_config["access"]["db_name"], $db_config["access"]["username"], $db_config["access"]["password"]);
     }
 
-    public function getModell($name) {
+    public function getModell($name)
+    {
         return new datamodell($name, $this);
     }
 
-    public function callModell($className,$param) {
-        
+    public function callModell($className, $param)
+    {
+
         $r = new \ReflectionClass($className);
-        $obj = $r->newInstanceArgs([$this,$param]);
+        $obj = $r->newInstanceArgs([$this, $param]);
         return $obj;
     }
 
@@ -62,7 +70,8 @@ class dbClass {
      * @return array
      * @throws \Exception
      */
-    public function fromDatabase($sql, $field = NULL, $params = [], $id = null) {
+    public function fromDatabase($sql, $field = NULL, $params = [], $id = null)
+    {
         if (!$sql) {
             throw new \Exception('sql statement missing!');
         }
@@ -141,7 +150,8 @@ class dbClass {
      *
      * @return: return value of mysql_query
      */
-    public function toDatabase($sql, $params = array()) {
+    public function toDatabase($sql, $params = array())
+    {
         $mysql_queryPrepared = $this->pdo->prepare($sql);
         $mysql_queryReturn = $mysql_queryPrepared->execute($params);
         //do we have a db error?
@@ -159,7 +169,8 @@ class dbClass {
      * @param $table
      * @param $id Wenn das nicht null, dann wird das UPDATE, sonder INSERT
      */
-    private function arrayToDatabase($array, $table, $id = array()) {
+    private function arrayToDatabase($array, $table, $id = array())
+    {
         if (!is_array($array)) {
             throw new \Exception('$array is not Array()');
         }
@@ -174,7 +185,7 @@ class dbClass {
         if (sizeof($id) == 0) {
             $query = "INSERT INTO `" . $table . "` (";
             $x = 0;
-            foreach ($array AS $key => $value) {
+            foreach ($array as $key => $value) {
                 if ($x > 0) {
                     $query .= ",";
                 }
@@ -183,7 +194,7 @@ class dbClass {
             }
             $query .= ") VALUES (";
             $x = 0;
-            foreach ($array AS $key => $value) {
+            foreach ($array as $key => $value) {
                 if ($x > 0) {
                     $query .= ",";
                 }
@@ -194,7 +205,7 @@ class dbClass {
         } else {
             $query = "UPDATE `" . $table . "` SET ";
             $x = 0;
-            foreach ($array AS $key => $value) {
+            foreach ($array as $key => $value) {
                 if ($x > 0) {
                     $query .= ",";
                 }
@@ -215,7 +226,8 @@ class dbClass {
      * @param $config
      * @throws \Exception
      */
-    private function check_db_config(&$config) {
+    private function check_db_config(&$config)
+    {
         $default_config = [
             "host" => "localhost",
             "dbname" => "",
@@ -223,7 +235,7 @@ class dbClass {
             "username" => "",
             "password" => ""
         ];
-        foreach ($default_config AS $index => $value) {
+        foreach ($default_config as $index => $value) {
             if (!isset($config[$index]) && empty($value)) {
                 throw new \Exception($index . " in parameterlist not found");
             }
@@ -240,9 +252,10 @@ class dbClass {
      * @param $data
      * @param null $query
      */
-    private function check_params(&$data, &$query = null) {
+    private function check_params(&$data, &$query = null)
+    {
 
-        foreach ($data AS $index => $item) {
+        foreach ($data as $index => $item) {
             check:
             if (preg_match_all("/:" . $index . "/", $query, $preg)) {
                 if (count($preg[0]) > 1) {
@@ -264,7 +277,8 @@ class dbClass {
      * @return bool
      * @throws \Exception
      */
-    public function update($table, $data, $where) {
+    public function update($table, $data, $where)
+    {
         return $this->arrayToDatabase($data, $table, $where);
     }
 
@@ -274,7 +288,8 @@ class dbClass {
      * @return bool
      * @throws \Exception
      */
-    public function insert($table, $data) {
+    public function insert($table, $data)
+    {
         return $this->arrayToDatabase($data, $table);
     }
 
@@ -282,7 +297,8 @@ class dbClass {
      * @param $table
      * @param $where
      */
-    public function delete($table, $where) {
+    public function delete($table, $where)
+    {
         $sql = "DELETE FROM `" . $table . "` WHERE " . $this->get_where($where);
         return $this->toDatabase($sql);
     }
@@ -294,7 +310,8 @@ class dbClass {
      * @return array
      * @throws \Exception
      */
-    public function select($table, $where = "", $fields = "*") {
+    public function select($table, $where = "", $fields = "*")
+    {
         $query = "SELECT " . $fields . " FROM `" . $table . "`";
         $params = [];
         if (!empty($where)) {
@@ -308,11 +325,12 @@ class dbClass {
      * @param array $params
      * @return string
      */
-    private function get_where($where, &$params = []) {
+    private function get_where($where, &$params = [])
+    {
         $string = "";
         if (is_array($where)) {
             $counter = 0;
-            foreach ($where AS $index => $value) {
+            foreach ($where as $index => $value) {
                 if ($counter > 0) {
                     $string .= " AND ";
                 }
@@ -325,18 +343,13 @@ class dbClass {
         return $string;
     }
 
-    /**
-     * Connection disconnect
-     */
-    public function disconnect() {
+    public function __destruct()
+    {
         $this->pdo = null;
     }
 
-    public function __destruct() {
-        $this->disconnect();
-    }
-
-    private function get_random_string($count = 10, $chars = "qwertzuioplkjhgfdsayxcvbnm0123456789QWERTZUIOPLKJHGFDSAYXCVBNM") {
+    private function get_random_string($count = 10, $chars = "qwertzuioplkjhgfdsayxcvbnm0123456789QWERTZUIOPLKJHGFDSAYXCVBNM")
+    {
         $string = "";
         for ($x = 0; $x < $count; $x++) {
             $string .= substr($chars, mt_rand(0, strlen($chars)), 1);
@@ -344,7 +357,8 @@ class dbClass {
         return $string;
     }
 
-    public function last_insert_id() {
+    public function last_insert_id()
+    {
         return $this->pdo->lastInsertId();
     }
 
