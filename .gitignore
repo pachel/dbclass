@@ -3,3 +3,4 @@ vendor/
 composer.lock
 temp
 /nbproject/private/
+/inc/config.php

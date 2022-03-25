@@ -16,10 +16,10 @@ $db_options = array(
 );
 $db_config = [
     "host" => "localhost",
-    "dbname" => "dbclass_test",
+    "dbname" => "",
     "charset" => "utf8",
-    "username" => "dbclass",
-    "password" => "dbclass"
+    "username" => "",
+    "password" => ""
 ];
 
 //dbClass::instance()->connect($db_config,$db_options);

@@ -12,7 +12,7 @@ final class datamodell
 {
     private $table;
     private $db;
-
+    private $query,$params;
     /**
      * datamodell constructor.
      * @param $table
@@ -23,7 +23,11 @@ final class datamodell
         $this->table = $table;
         $this->db = &$db;
     }
-
+    public function find($query,$params = []){
+        $this->query = $query;
+        $this->params = $params;
+        return $this;
+    }
     /**
      * Select all rows from this table
      *
@@ -54,9 +58,9 @@ final class datamodell
      * @param $data
      * @param $id
      */
-    public function update($data, $id)
+    public function updateById($data, $id)
     {
-        $this->db->update($this->table,$data, $id);
+        $this->db->update($this->table,$data, ["id"=>$id]);
     }
 
     /**
@@ -70,8 +74,29 @@ final class datamodell
     /**
      * @param $id
      */
-    public function delete($id)
+    public function deleteById($id)
     {
-        return $this->db->delete($this->table, $id);
+        return $this->db->delete($this->table, ["id"=>$id]);
+    }
+    public function orderBy($query){
+        $this->query.=" ORDER BY ".$query;
+        return $this;
+    }
+    public function groupBy($query){
+        $this->query.=" GROUP BY ".$query;
+        return $this;
+    }
+    public function delete(){
+        $this->db->toDatabase("DELETE FROM `".$this->table."` WHERE ".$this->query,$this->params);
+    }
+
+    public function row(){
+        return $this->db->fromDatabase("SELECT *FROM `".$this->table."` WHERE ".$this->query,$this->params,"@line");
+    }
+    public function rows(){
+        return $this->db->fromDatabase("SELECT *FROM `".$this->table."` WHERE ".$this->query,$this->params);
+    }
+    private function setQuery(){
+
     }
 }

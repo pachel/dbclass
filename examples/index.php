@@ -13,24 +13,29 @@ $data = [
     "email" => "pachel82@gmail.com"
 ];
 
-if($db->fromDatabase("SELECT id FROM users WHERE id=:id",["id"=>1],"@simple") != 1 ){
-    $db->insert("users",$data);
+if($db->fromDatabase("SELECT id FROM dolgozok WHERE id=:id",["id"=>1],"@simple") != 1 ){
+    //$db->insert("users",$data);
 }
 
-$users = $db->fromDatabase("SELECT id,name,email FROM users");
-print_r($users);
+$users = $db->fromDatabase("SELECT * FROM dolgozok");
+//print_r($users);
 
-$users = $db->fromDatabase("SELECT id,name,email FROM users");
-print_r($users);
-
-
-$user = $db->getModell("users");
-print_r($user->get_by_id(1));
+$users = $db->fromDatabase("SELECT * FROM dolgozok");
+//print_r($users);
 
 
+$user = $db->getModell("dolgozok");
+print_r($user->getById(1));
+print_r($user->find("tipus=?",[1])->orderBy("nev ASC")->rows());
+$user->insert(["nev"=>"teszt"]);
+$id = $db->last_insert_id();
+$user->deleteById($id);
+
+/*
 $params = [
     "name" => "toth"
 ];
 $result = $db->fromDatabase("SELECT * FROM users WHERE name LIKE :name OR name LIKE :name OR name LIKE :name",$params);
 print_r($result);
 
+*/
