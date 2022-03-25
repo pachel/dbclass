@@ -82,6 +82,7 @@ final class datamodell
         $this->query.=" ORDER BY ".$query;
         return $this;
     }
+    //asdasd
     public function groupBy($query){
         $this->query.=" GROUP BY ".$query;
         return $this;
