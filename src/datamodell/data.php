@@ -29,6 +29,9 @@ final class datamodell
         return $this;
     }
     /**
+     * asdasdasd as
+     */
+    /**
      * Select all rows from this table
      *
      * @param array $data
