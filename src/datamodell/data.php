@@ -86,6 +86,7 @@ final class datamodell
         $this->query.=" GROUP BY ".$query;
         return $this;
     }
+    //asdas
     public function delete(){
         $this->db->toDatabase("DELETE FROM `".$this->table."` WHERE ".$this->query,$this->params);
     }
