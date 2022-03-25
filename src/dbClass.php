@@ -25,6 +25,7 @@ class dbClass {
         return self::$self;
     }
 //*asdasdasd
+//asdasd
     public function __construct() {
         $args = func_get_args();
         if (!empty($args)) {
