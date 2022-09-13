@@ -4,39 +4,49 @@
  * Created by László Tóth
  */
 
-namespace Pachel\DbClass;
+namespace Pachel\db;
 
-
-
-
-
-class Base
+class dbClass
 {
     /**
      * @var \PDO
      */
     protected \PDO  $pdo;
+
+    protected $cache = ["time"=>0,"dir"=>null];
+
+    private static Array $db_config;
     /**
-     * @var Base|null
+     * @var dbClass|null
      */
-    private static ?Base $self = null;
+    private static ?dbClass $self = null;
 
     /**
-     * @return Base
+     * @return dbClass
      */
-    public static function instance():Base
+    public static function instance():dbClass
     {
         if (empty(self::$self)) {
-            self::$self = new Base();
+            self::$self = new dbClass();
         }
         return self::$self;
     }
+    public function setCache($seconds,$cache_dir){
+        $this->cache = [
+            "time"=>$seconds,
+            "dir"=>$cache_dir
+        ];
+    }
+    public static function setConfig(string $file){
+        if(!file_exists($file) && !is_file($file)){
+            new \Exception("Config file not exists: ".$file);
+        }
+        self::$db_config = require_once $file;
+    }
     public function __construct()
     {
-        if(!function_exists("db_config")){
-            new Exception("db_config() is not defined!");
-        }
-        $this->connect(db_config());
+
+        $this->connect();
     }
 
     /**
@@ -45,9 +55,9 @@ class Base
      * @param array $db_options
      * @throws \Exception
      */
-    public function connect($db_config):void
+    private function connect():void
     {
-        $this->pdo = new \PDO($db_config["access"]["db_name"], $db_config["access"]["username"], $db_config["access"]["password"]);
+        $this->pdo = new \PDO(self::$db_config["access"]["dbname"], self::$db_config["access"]["username"], self::$db_config["access"]["password"]);
     }
 
     public function getModell($name)
@@ -80,6 +90,10 @@ class Base
             $tmp = $params;
             $params = $field;
             $field = $tmp;
+        }
+        if($this->cache["time"]>0){
+            $hash = md5($sql.serialize($field).serialize($params).serialize($id));
+
         }
 
         $resultArray = array();

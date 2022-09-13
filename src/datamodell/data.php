@@ -6,7 +6,7 @@
  * Time: 16:13
  */
 
-namespace Pachel;
+//namespace Pachel;
 
 final class datamodell
 {
