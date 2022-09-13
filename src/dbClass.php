@@ -89,6 +89,9 @@ class dbClass
             $field = $tmp;
         }
         if ($this->cache["time"] > 0) {
+            if(!is_dir($this->cache["dir"])){
+                mkdir($this->cache["dir"]);
+            }
             $hash = md5($sql . serialize($field) . serialize($params) . serialize($id));
             $file = $this->cache["dir"] . $hash . ".tmp";
             if (is_file($file)) {
@@ -173,7 +176,7 @@ class dbClass
         if ($this->cache["time"] > 0) {
             file_put_contents($file,serialize($resultArray));
         }
-        return [];
+        return $resultArray;
     }
 
     /**
