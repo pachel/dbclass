@@ -8,6 +8,7 @@ use Pachel\db\Modell;
 
 dbClass::setConfig(__DIR__."/db-config.php");
 
-$Modell = new Modell("dolgozok");
+$db = dbClass::instance();
+$db->select()->from("teszt")->exec();
 
 

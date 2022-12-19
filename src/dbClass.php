@@ -22,6 +22,26 @@ class dbClass
     private static ?dbClass $self = null;
 
     /**
+     * @var
+     */
+    private $parameters = null;
+    /**
+     * @var string
+     */
+    private $selectFields;
+    /**
+     * @var
+     */
+    private $fromTables;
+
+    use Select;
+    use From;
+    use Where;
+    use OrderBy;
+    use Exec;
+    use SetParams;
+
+    /**
      * @return dbClass
      */
     public static function instance():dbClass
@@ -58,19 +78,6 @@ class dbClass
     private function connect():void
     {
         $this->pdo = new \PDO(self::$db_config["access"]["dbname"], self::$db_config["access"]["username"], self::$db_config["access"]["password"]);
-    }
-
-    public function getModell($name)
-    {
-        return new datamodell($name, $this);
-    }
-
-    public function callModell($className, $param)
-    {
-
-        $r = new \ReflectionClass($className);
-        $obj = $r->newInstanceArgs([$this, $param]);
-        return $obj;
     }
 
     /**
@@ -317,22 +324,8 @@ class dbClass
         return $this->toDatabase($sql);
     }
 
-    /**
-     * @param $table
-     * @param string $where
-     * @param string $fields
-     * @return array
-     * @throws \Exception
-     */
-    public function select($table, $where = "", $fields = "*")
-    {
-        $query = "SELECT " . $fields . " FROM `" . $table . "`";
-        $params = [];
-        if (!empty($where)) {
-            $query .= " WHERE " . $this->get_where($where, $params);
-        }
-        return $this->fromDatabase($query, $params);
-    }
+
+
 
     /**
      * @param $where
