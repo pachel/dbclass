@@ -10,6 +10,7 @@ trait From
      */
     public function from($table):dbClass
     {
+
         $this->fromTables = $table;
         return $this;
     }

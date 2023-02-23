@@ -15,7 +15,7 @@ class dbClass
 
     protected $cache = ["time"=>0,"dir"=>null];
 
-    private static Array $db_config;
+    private static array $db_config;
     /**
      * @var dbClass|null
      */
@@ -32,7 +32,7 @@ class dbClass
     /**
      * @var
      */
-    private $fromTables;
+    protected $fromTables;
 
     use Select;
     use From;
@@ -46,6 +46,7 @@ class dbClass
      */
     public static function instance():dbClass
     {
+
         if (empty(self::$self)) {
             self::$self = new dbClass();
         }
