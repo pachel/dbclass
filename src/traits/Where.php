@@ -1,14 +1,19 @@
 <?php
 
-namespace Pachel\db;
+namespace Pachel\db\Traits;
+
+use Pachel\db\dbClass;
 
 trait Where
 {
+    protected $query;
     /**
-     * @return dbClass
+     * @var dbClass
      */
-    public function where():dbClass
-    {
-        return $this;
+    protected $db;
+
+    public function where($param){
+        $this->db->parameters["where"] = $param;
+        return new \Pachel\Classes\Where($this->db);
     }
 }

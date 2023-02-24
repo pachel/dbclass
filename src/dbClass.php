@@ -6,44 +6,40 @@
 
 namespace Pachel\db;
 
+use Pachel\Classes\Select;
+
 class dbClass
 {
     /**
      * @var \PDO
      */
-    protected \PDO  $pdo;
+    protected $pdo;
 
     protected $cache = ["time"=>0,"dir"=>null];
 
-    private static array $db_config;
+    private static  $db_config;
     /**
      * @var dbClass|null
      */
-    private static ?dbClass $self = null;
+    private static  $self = null;
+
 
     /**
      * @var
      */
-    private $parameters = null;
-    /**
-     * @var string
-     */
-    private $selectFields;
-    /**
-     * @var
-     */
-    protected $fromTables;
+    public $parameters = [];
 
-    use Select;
-    use From;
-    use Where;
-    use OrderBy;
-    use Exec;
-    use SetParams;
 
+    /**
+     * @var bool
+     */
+    private $object = false;
     /**
      * @return dbClass
      */
+    public function setObject($value):void{
+        $this->object = $value;
+    }
     public static function instance():dbClass
     {
 
@@ -64,6 +60,11 @@ class dbClass
         }
         self::$db_config = require_once $file;
     }
+    public function select($fields = null){
+        $this->parameters = [];
+        $this->parameters["fields"] = $fields;
+        return  new Select($this);
+    }
     public function __construct()
     {
 
@@ -78,7 +79,9 @@ class dbClass
      */
     private function connect():void
     {
-        $this->pdo = new \PDO(self::$db_config["access"]["dbname"], self::$db_config["access"]["username"], self::$db_config["access"]["password"]);
+
+        $db_dsn = 'mysql:host=' . self::$db_config["access"]["host"] . ';dbname=' . self::$db_config["access"]["dbname"] . ";charset=" . self::$db_config["access"]["charset"];
+        $this->pdo = new \PDO($db_dsn, self::$db_config["access"]["username"], self::$db_config["access"]["password"],null);
     }
 
     /**
@@ -90,6 +93,7 @@ class dbClass
      */
     public function fromDatabase($sql, $field = NULL, $params = [], $id = null)
     {
+
         if (!$sql) {
             throw new \Exception('sql statement missing!');
         }
@@ -106,7 +110,6 @@ class dbClass
 
         $resultArray = array();
         $this->check_params($params, $sql);
-        //   echo $sql;
         $result = $this->pdo->prepare($sql);
         $result->execute($params);
 
@@ -131,7 +134,12 @@ class dbClass
         }
         if ($field == '@line') {
             if ($result->rowCount()) {
-                $resultArray = $result->fetch(\PDO::FETCH_ASSOC);
+                if($this->object){
+                    $resultArray = $result->fetch(\PDO::FETCH_OBJ);
+                }
+                else{
+                    $resultArray = $result->fetch(\PDO::FETCH_ASSOC);
+                }
                 return ($resultArray);
             } else {
                 return [];
@@ -185,6 +193,7 @@ class dbClass
         }
         return (true);
     }
+
 
     /**
      * @param $array
@@ -369,5 +378,8 @@ class dbClass
     {
         return $this->pdo->lastInsertId();
     }
-
+    public function __invoke()
+    {
+        die("asdASDAS");
+    }
 }
