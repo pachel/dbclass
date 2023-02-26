@@ -83,16 +83,20 @@ $db = dbClass::instance();
 
 
 
-//$teszt = $db->select()->from("p_szamlak")->where()->line();
+$teszt = $db->from("p_szamlak")->where(["statusz"=>1])->limit(2,2)->array();
+//print_r($teszt);
 
 $Users = new MyModell($db,"p_szamlak");
-//$gecet = $Users->where(["statusz"=>0])->array();
-//print_r($gecet);
-$szamla = $Users->find(1754);
 
-echo $szamla->sorszam."\n";
-echo $szamla->beerkezes;
+$keresos = $Users->search("2021-12-01")->limit(0,2)->array();
+print_r($keresos);
 
 
+$en = $db->from("m_felhasznalok")->where(["id"=>1])->line();
 
+print_r($en);
 
+if($szamla = $Users->find(1754)){
+
+    echo "ifelve:".$szamla->sorszam;
+}

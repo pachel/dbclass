@@ -4,7 +4,7 @@ namespace Pachel\db\Traits;
 
 use Pachel\db\dbClass;
 
-trait Where
+trait Limit
 {
     /**
      * @var string $query
@@ -20,13 +20,10 @@ trait Where
      *
      * --------------------------------------------------------------------------
      * @param string $param
-     * @return \Pachel\Classes\Where
+     * @return \Pachel\Classes\Limit
      */
-    public function where($param){
-        $this->db->parameters["searchtext"] = null;
-        $this->db->parameters["limit"] = null;
-        $this->db->parameters["where"] = $param;
-
-        return new \Pachel\Classes\Where($this->db);
+    public function limit($from=null,$to=null):\Pachel\Classes\Limit{
+        $this->db->parameters["limit"] = ["from"=>$from,"to"=>$to];
+        return new \Pachel\Classes\Limit($this->db);
     }
 }

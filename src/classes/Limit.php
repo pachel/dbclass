@@ -4,26 +4,28 @@
 namespace Pachel\Classes;
 
 
+
 use Pachel\db\dbClass;
 use Pachel\db\Traits\Exec;
-use Pachel\db\Traits\Limit;
 
 
-class From
+class Limit
 {
     /**
      * @var dbClass
      */
     protected dbClass $db;
 
-
-
     use Exec;
-    use \Pachel\db\Traits\Where;
-    use Limit;
+
+    /**
+     * Where constructor.
+     * @param dbClass $db
+     */
     public function __construct(&$db)
     {
         $this->db = &$db;
     }
+
 
 }

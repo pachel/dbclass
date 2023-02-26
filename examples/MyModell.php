@@ -1,6 +1,9 @@
 <?php
 class MyModell extends BaseModell
 {
+
+    protected string $userDefinedType = "UserType";
+    protected $SearchableFields = "all";
     /**
      * @param $id
      * @return UserType
@@ -12,6 +15,7 @@ class MyModell extends BaseModell
     public function __construct($db, $table)
     {
         parent::__construct($db, $table);
+
     }
 
     protected function h(){

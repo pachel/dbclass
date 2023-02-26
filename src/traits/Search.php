@@ -4,7 +4,7 @@ namespace Pachel\db\Traits;
 
 use Pachel\db\dbClass;
 
-trait Where
+trait Search
 {
     /**
      * @var string $query
@@ -19,14 +19,12 @@ trait Where
      * --------------------------------------------------------------------------
      *
      * --------------------------------------------------------------------------
-     * @param string $param
-     * @return \Pachel\Classes\Where
+     * @param string $searchtext
+     * @return array
      */
-    public function where($param){
-        $this->db->parameters["searchtext"] = null;
-        $this->db->parameters["limit"] = null;
-        $this->db->parameters["where"] = $param;
-
-        return new \Pachel\Classes\Where($this->db);
+    public function search($text){
+        $this->db->parameters["searchtext"] = $text;
+        $d = new From($this->db);
+        return $d->array();
     }
 }

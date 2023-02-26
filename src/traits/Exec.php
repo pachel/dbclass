@@ -6,11 +6,11 @@ use Pachel\db\dbClass;
 
 trait Exec
 {
-    protected $query;
+    protected string $query;
     /**
      * @var dbClass
      */
-    protected $db;
+    protected dbClass $db;
 
     public function array(): array
     {
@@ -54,9 +54,13 @@ trait Exec
             $sql .= "* ";
         } else {
             if (is_array($this->db->parameters["fields"])) {
-                //TODO: Tömbös mezőnevek kezelése
+                $c = 0;
                 foreach ($this->db->parameters["fields"] as $field) {
-
+                    if ($c > 0) {
+                        $sql . +", ";
+                    }
+                    $sql .= $field;
+                    $c++;
                 }
             }
             $sql .= $this->db->parameters["fields"] . " ";
@@ -64,26 +68,39 @@ trait Exec
         $sql .= "FROM `" . $this->db->parameters["table"] . "` ";
         $this->db->parameters["pdo_parameters"] = null;
         if (isset($this->db->parameters["where"]) && !empty($this->db->parameters["where"])) {
-            if(is_array($this->db->parameters["where"])){
-                $sql.="WHERE ";
+            if (is_array($this->db->parameters["where"])) {
+                $sql .= "WHERE ";
                 $c = 0;
                 $where = $this->db->parameters["where"];
-                foreach ($where AS $key=>$item){
-                    if($c>0){
-                        $sql.=" AND ";
+                foreach ($where as $key => $item) {
+                    if ($c > 0) {
+                        $sql .= " AND ";
                     }
-                    $sql.="`".$key."`=:".$key;
-                    $this->db->parameters["pdo_parameters"][$key]=$item;
+                    $sql .= "`" . $key . "`=:" . $key;
+                    $this->db->parameters["pdo_parameters"][$key] = $item;
                     $c++;
                 }
 
+            } else {
+                $sql .= "WHERE " . $this->db->parameters["where"];
             }
-            else{
-                $sql.="WHERE ".$this->db->parameters["where"];
+            if (!empty($this->db->parameters["searchtext"])) {
+                $sql.=" AND (".implode(" LIKE '%".$this->db->parameters["searchtext"]."%' OR ",$this->db->parameters["searchfields"])." LIKE '%".$this->db->parameters["searchtext"]."%'".")";
+
+            }
+        }
+        else{
+            if (!empty($this->db->parameters["searchtext"])) {
+                $sql.=" WHERE (".implode(" LIKE '%".$this->db->parameters["searchtext"]."%' OR ",$this->db->parameters["searchfields"])." LIKE '%".$this->db->parameters["searchtext"]."%'".")";
+
             }
         }
 
-        $this->query = $sql;
+        if (isset($this->db->parameters["limit"]) && !empty($this->db->parameters["limit"])) {
+            $sql .= " LIMIT " . $this->db->parameters["limit"]["from"] . (!empty($this->db->parameters["limit"]["to"]) ? "," . $this->db->parameters["limit"]["to"] : "");
+        }
 
+        $this->query = $sql;
+        echo $sql."\n";
     }
 }

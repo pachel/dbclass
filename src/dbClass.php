@@ -6,12 +6,15 @@
 
 namespace Pachel\db;
 
+use Exception;
+use Pachel\Classes\From;
 use Pachel\Classes\Select;
+use PDO;
 
 class dbClass
 {
     /**
-     * @var \PDO
+     * @var PDO
      */
     protected $pdo;
 
@@ -34,6 +37,9 @@ class dbClass
      * @var bool
      */
     private $object = false;
+
+    protected dbClass $db;
+
     /**
      * @return dbClass
      */
@@ -56,14 +62,25 @@ class dbClass
     }
     public static function setConfig(string $file){
         if(!file_exists($file) && !is_file($file)){
-            new \Exception("Config file not exists: ".$file);
+            new Exception("Config file not exists: ".$file);
         }
         self::$db_config = require_once $file;
     }
-    public function select($fields = null){
+
+    /**
+     * @param string|array $fields
+     * @return Select
+     */
+    public function select($fields = null):Select{
         $this->parameters = [];
         $this->parameters["fields"] = $fields;
         return  new Select($this);
+    }
+    public function from($table)
+    {
+        $this->parameters["table"] = $table;
+        return new From($this);
+
     }
     public function __construct()
     {
@@ -75,13 +92,13 @@ class dbClass
      *
      * @param $db_config
      * @param array $db_options
-     * @throws \Exception
+     * @throws Exception
      */
     private function connect():void
     {
 
         $db_dsn = 'mysql:host=' . self::$db_config["access"]["host"] . ';dbname=' . self::$db_config["access"]["dbname"] . ";charset=" . self::$db_config["access"]["charset"];
-        $this->pdo = new \PDO($db_dsn, self::$db_config["access"]["username"], self::$db_config["access"]["password"],null);
+        $this->pdo = new PDO($db_dsn, self::$db_config["access"]["username"], self::$db_config["access"]["password"],null);
     }
 
     /**
@@ -89,13 +106,13 @@ class dbClass
      * @param null $field
      * @param array $params
      * @return array
-     * @throws \Exception
+     * @throws Exception
      */
     public function fromDatabase($sql, $field = NULL, $params = [], $id = null)
     {
 
         if (!$sql) {
-            throw new \Exception('sql statement missing!');
+            throw new Exception('sql statement missing!');
         }
 
         if (is_array($field)) {
@@ -115,7 +132,7 @@ class dbClass
 
         if ($field == '@flat') {
             if ($result->rowCount()) {
-                while ($temp = $result->fetch(\PDO::FETCH_NUM)) {
+                while ($temp = $result->fetch(PDO::FETCH_NUM)) {
                     $resultArray[] = $temp;
                 }
                 return ($resultArray);
@@ -125,7 +142,7 @@ class dbClass
         }
         if ($field == '@simple') {
             if ($result->rowCount()) {
-                $temp = $result->fetch(\PDO::FETCH_ASSOC);
+                $temp = $result->fetch(PDO::FETCH_ASSOC);
                 $resultArray = array_values($temp);
                 return ($resultArray[0]);
             } else {
@@ -135,10 +152,10 @@ class dbClass
         if ($field == '@line') {
             if ($result->rowCount()) {
                 if($this->object){
-                    $resultArray = $result->fetch(\PDO::FETCH_OBJ);
+                    $resultArray = $result->fetch(PDO::FETCH_OBJ);
                 }
                 else{
-                    $resultArray = $result->fetch(\PDO::FETCH_ASSOC);
+                    $resultArray = $result->fetch(PDO::FETCH_ASSOC);
                 }
                 return ($resultArray);
             } else {
@@ -147,7 +164,7 @@ class dbClass
         }
         if ($field == '@group' && $id != null) {
             if ($result->rowCount()) {
-                while ($temp = $result->fetch(\PDO::FETCH_ASSOC)) {
+                while ($temp = $result->fetch(PDO::FETCH_ASSOC)) {
                     $resultArray[$temp[$id]] = $temp;
                 }
                 return ($resultArray);
@@ -155,7 +172,7 @@ class dbClass
         }
         if ($field == '@array') {
             if ($result->rowCount()) {
-                while ($temp = $result->fetch(\PDO::FETCH_NUM)) {
+                while ($temp = $result->fetch(PDO::FETCH_NUM)) {
                     $resultArray[] = $temp[0];
                 }
                 return ($resultArray);
@@ -163,7 +180,7 @@ class dbClass
         }
         $i = 0;
         if ($result->rowCount()) {
-            while ($temp = $result->fetch(\PDO::FETCH_ASSOC)) {
+            while ($temp = $result->fetch(PDO::FETCH_ASSOC)) {
                 $resultArray[$i] = $temp;
                 $i++;
             }
@@ -189,7 +206,7 @@ class dbClass
         if (!$err) {
             //error occured, show the error:
             $error = $mysql_queryPrepared->errorInfo();
-            throw new \Exception("MYSQL ERROR: " . $error[2] . "\n");
+            throw new Exception("MYSQL ERROR: " . $error[2] . "\n");
         }
         return (true);
     }
@@ -203,13 +220,13 @@ class dbClass
     private function arrayToDatabase($array, $table, $id = array())
     {
         if (!is_array($array)) {
-            throw new \Exception('$array is not Array()');
+            throw new Exception('$array is not Array()');
         }
         if (empty($table)) {
-            throw new \Exception('$table parameter is empty!');
+            throw new Exception('$table parameter is empty!');
         }
         if (gettype($table) != "string") {
-            throw new \Exception('$table parameter type is not string!');
+            throw new Exception('$table parameter type is not string!');
         }
         $this->check_params($array);
 
@@ -255,7 +272,7 @@ class dbClass
      * Check if all parameters exists
      *
      * @param $config
-     * @throws \Exception
+     * @throws Exception
      */
     private function check_db_config(&$config)
     {
@@ -268,7 +285,7 @@ class dbClass
         ];
         foreach ($default_config as $index => $value) {
             if (!isset($config[$index]) && empty($value)) {
-                throw new \Exception($index . " in parameterlist not found");
+                throw new Exception($index . " in parameterlist not found");
             }
             if (!isset($config[$index])) {
                 $config[$index] = $value;
@@ -306,7 +323,7 @@ class dbClass
      * @param $data
      * @param $where
      * @return bool
-     * @throws \Exception
+     * @throws Exception
      */
     public function update($table, $data, $where)
     {
@@ -317,7 +334,7 @@ class dbClass
      * @param $table
      * @param $data
      * @return bool
-     * @throws \Exception
+     * @throws Exception
      */
     public function insert($table, $data)
     {
