@@ -1,15 +1,15 @@
 {
     "name": "pachel/dbclass",
     "description": "DBclass for mysql",
-    "type": "library",
+    "type": "type",
     "license": "(LGPL-2.1-only or GPL-3.0-or-later)",
     "homepage": "https://github.com/pachel/dbclass",
     "authors": [
-        {
-            "name": "Laszlo Toth",
-            "email": "pachel82@gmail.com"
-        }
-    ],
+    {
+        "name": "Laszlo Toth",
+        "email": "pachel82@gmail.com"
+    }
+],
     "minimum-stability": "stable",
     "require": {
         "php": ">=7.4"

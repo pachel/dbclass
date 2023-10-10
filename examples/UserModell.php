@@ -1,12 +1,13 @@
 <?php
-class MyModell extends BaseModell
+
+class UserModell extends BaseModell
 {
 
-    protected string $userDefinedType = "SzamlaType";
+    protected string $userDefinedType = "UserType";
     protected $SearchableFields = "all";
     /**
      * @param $id
-     * @return SzamlaType
+     * @return UserType
      */
     public function find($id)
     {

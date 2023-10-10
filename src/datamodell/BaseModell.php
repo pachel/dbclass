@@ -39,7 +39,7 @@ class BaseModell
      */
     public function __construct($db, $table)
     {
-        $this->db = $db;
+        $this->db = clone $db;
         $this->db->parameters = [];
         $this->db->parameters["table"] = $table;
     }
@@ -54,11 +54,12 @@ class BaseModell
      */
     public function all()
     {
+        $this->resetAllParameter();
         $d = new From($this->db);
         return $d->array();
     }
 
-
+    use \Pachel\db\Traits\ResetAll;
     /**
      * --------------------------------------------------------------------------
      * ID alapján ad vissza egy objektumot, ami a tábla összes mezőjét
@@ -69,6 +70,7 @@ class BaseModell
      */
     public function find($id)
     {
+        $this->resetAllParameter();
         $this->db->setObject(true);
         $this->db->parameters["where"] = ["id" => $id];
         $where = new Where($this->db);
@@ -85,6 +87,7 @@ class BaseModell
      */
     public function search($text):\Pachel\Classes\Search
     {
+        $this->resetAllParameter();
         $this->db->parameters["searchtext"] = $text;
         $this->db->parameters["searchfields"] = $this->getFields();
         //print_r($this->db->parameters["searchfields"]) ;

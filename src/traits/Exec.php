@@ -85,13 +85,13 @@ trait Exec
                 $sql .= "WHERE " . $this->db->parameters["where"];
             }
             if (!empty($this->db->parameters["searchtext"])) {
-                $sql.=" AND (".implode(" LIKE '%".$this->db->parameters["searchtext"]."%' OR ",$this->db->parameters["searchfields"])." LIKE '%".$this->db->parameters["searchtext"]."%'".")";
+                $sql.=" AND (`".implode("` LIKE '%".$this->db->parameters["searchtext"]."%' OR `",$this->db->parameters["searchfields"])."` LIKE '%".$this->db->parameters["searchtext"]."%'".")";
 
             }
         }
         else{
             if (!empty($this->db->parameters["searchtext"])) {
-                $sql.=" WHERE (".implode(" LIKE '%".$this->db->parameters["searchtext"]."%' OR ",$this->db->parameters["searchfields"])." LIKE '%".$this->db->parameters["searchtext"]."%'".")";
+                $sql.=" WHERE (`".implode("` LIKE '%".$this->db->parameters["searchtext"]."%' OR `",$this->db->parameters["searchfields"])."` LIKE '%".$this->db->parameters["searchtext"]."%'".")";
 
             }
         }
@@ -103,4 +103,5 @@ trait Exec
         $this->query = $sql;
         echo $sql."\n";
     }
+
 }

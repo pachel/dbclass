@@ -14,7 +14,7 @@ trait Where
      * @var dbClass $db
      */
     protected dbClass $db;
-
+    use ResetAll;
     /**
      * --------------------------------------------------------------------------
      *
@@ -23,8 +23,7 @@ trait Where
      * @return \Pachel\Classes\Where
      */
     public function where($param){
-        $this->db->parameters["searchtext"] = null;
-        $this->db->parameters["limit"] = null;
+        $this->resetAllParameter();
         $this->db->parameters["where"] = $param;
 
         return new \Pachel\Classes\Where($this->db);
