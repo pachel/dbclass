@@ -11,6 +11,8 @@ class dbClass
 
     protected $db_username = "", $db_password = "", $db_dsn = "";
     protected $pdo;
+
+    private $_RESULT_TYPE = DB_RESULT_TYPE_ARRAY;
     private static $self = null;
     protected $cache = ["time" => 0, "dir" => null];
 
@@ -19,6 +21,7 @@ class dbClass
      */
     public static function instance()
     {
+
         if (empty(self::$self)) {
 
             $ref = new \Reflectionclass("Pachel\dbClass");
@@ -113,9 +116,11 @@ class dbClass
 
         if ($field == '@flat') {
             if ($result->rowCount()) {
-                while ($temp = $result->fetch(\PDO::FETCH_NUM)) {
-                    $resultArray[] = $temp;
-                }
+
+                    while ($temp = $result->fetch(\PDO::FETCH_NUM)) {
+                        $resultArray[] = $temp;
+                    }
+
                 goto end;
 
             } else {
@@ -124,7 +129,7 @@ class dbClass
         }
         if ($field == '@simple') {
             if ($result->rowCount()) {
-                $temp = $result->fetch(\PDO::FETCH_ASSOC);
+                $temp = $result->fetch(($this->_RESULT_TYPE == DB_RESULT_TYPE_OBJECT?\PDO::FETCH_OBJ:\PDO::FETCH_ASSOC));
                 $resultArray = array_values($temp);
                 $resultArray = $resultArray[0];
                 goto end;
@@ -136,7 +141,7 @@ class dbClass
         }
         if ($field == '@line') {
             if ($result->rowCount()) {
-                $resultArray = $result->fetch(\PDO::FETCH_ASSOC);
+                $resultArray = $result->fetch(($this->_RESULT_TYPE == DB_RESULT_TYPE_OBJECT?\PDO::FETCH_OBJ:\PDO::FETCH_ASSOC));
                 goto end;
                 return ($resultArray);
             } else {
@@ -164,7 +169,7 @@ class dbClass
         }
         $i = 0;
         if ($result->rowCount()) {
-            while ($temp = $result->fetch(\PDO::FETCH_ASSOC)) {
+            while ($temp = $result->fetch(($this->_RESULT_TYPE == DB_RESULT_TYPE_OBJECT?\PDO::FETCH_OBJ:\PDO::FETCH_ASSOC))) {
                 $resultArray[$i] = $temp;
                 $i++;
             }
