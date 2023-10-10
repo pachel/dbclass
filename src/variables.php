@@ -5,3 +5,6 @@
  */
 define("DB_RESULT_TYPE_ARRAY",0);
 define("DB_RESULT_TYPE_OBJECT",1);
+
+
+define("DB_RESULT_TYPE_DEFAULT",0);

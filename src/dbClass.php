@@ -12,7 +12,7 @@ class dbClass
     protected $db_username = "", $db_password = "", $db_dsn = "";
     protected $pdo;
 
-    private $_RESULT_TYPE = DB_RESULT_TYPE_ARRAY;
+    private $_RESULT_TYPE;
     private static $self = null;
     protected $cache = ["time" => 0, "dir" => null];
 
@@ -35,6 +35,7 @@ class dbClass
     public function __construct()
     {
         $args = func_get_args();
+        $this->_RESULT_TYPE = DB_RESULT_TYPE_ARRAY;
         if (!empty($args)) {
             $this->connect($args[0], (!empty($args[1]) ? $args[1] : []));
         }
@@ -59,7 +60,9 @@ class dbClass
         $this->check_db_config($db_config);
         $this->pdo = new \PDO($this->db_dsn, $this->db_username, $this->db_password, $db_options);
     }
+    public function settings(){
 
+    }
     public function getModell($name)
     {
         return new datamodell($name, $this);
