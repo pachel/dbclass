@@ -6,6 +6,8 @@
 
 namespace Pachel;
 
+use Pachel\dbClass\Callbacks\settingsCallback;
+
 class dbClass
 {
 
@@ -65,7 +67,7 @@ class dbClass
         $this->pdo = new \PDO($this->db_dsn, $this->db_username, $this->db_password, $db_options);
     }
     public function settings(){
-
+        return new settingsCallback($this);
     }
     public function getModell($name)
     {
@@ -416,5 +418,13 @@ class dbClass
     {
         return $this->pdo->lastInsertId();
     }
-
+    protected function setresultmode($mode){
+        $this->_RESULT_TYPE = $mode;
+    }
+    public function __call($name, $arguments)
+    {
+        if (method_exists($this, $name)) {
+            return $this->$name($arguments);
+        }
+    }
 }
