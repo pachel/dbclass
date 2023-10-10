@@ -11,6 +11,10 @@ class dbClass
 
     protected $db_username = "", $db_password = "", $db_dsn = "";
     protected $pdo;
+    const
+        DB_RESULT_TYPE_ARRAY    = 0,
+        DB_RESULT_TYPE_OBJECT   = 1,
+        DB_RESULT_TYPE_DEFAULT   = 0;
 
     private $_RESULT_TYPE;
     private static $self = null;
@@ -35,7 +39,7 @@ class dbClass
     public function __construct()
     {
         $args = func_get_args();
-        $this->_RESULT_TYPE = DB_RESULT_TYPE_ARRAY;
+        $this->_RESULT_TYPE = self::DB_RESULT_TYPE_DEFAULT;
         if (!empty($args)) {
             $this->connect($args[0], (!empty($args[1]) ? $args[1] : []));
         }
@@ -132,7 +136,7 @@ class dbClass
         }
         if ($field == '@simple') {
             if ($result->rowCount()) {
-                $temp = $result->fetch(($this->_RESULT_TYPE == DB_RESULT_TYPE_OBJECT?\PDO::FETCH_OBJ:\PDO::FETCH_ASSOC));
+                $temp = $result->fetch(($this->_RESULT_TYPE == self::DB_RESULT_TYPE_OBJECT?\PDO::FETCH_OBJ:\PDO::FETCH_ASSOC));
                 $resultArray = array_values($temp);
                 $resultArray = $resultArray[0];
                 goto end;
@@ -144,7 +148,7 @@ class dbClass
         }
         if ($field == '@line') {
             if ($result->rowCount()) {
-                $resultArray = $result->fetch(($this->_RESULT_TYPE == DB_RESULT_TYPE_OBJECT?\PDO::FETCH_OBJ:\PDO::FETCH_ASSOC));
+                $resultArray = $result->fetch(($this->_RESULT_TYPE == self::DB_RESULT_TYPE_OBJECT?\PDO::FETCH_OBJ:\PDO::FETCH_ASSOC));
                 goto end;
                 return ($resultArray);
             } else {
@@ -172,7 +176,7 @@ class dbClass
         }
         $i = 0;
         if ($result->rowCount()) {
-            while ($temp = $result->fetch(($this->_RESULT_TYPE == DB_RESULT_TYPE_OBJECT?\PDO::FETCH_OBJ:\PDO::FETCH_ASSOC))) {
+            while ($temp = $result->fetch(($this->_RESULT_TYPE == self::DB_RESULT_TYPE_OBJECT?\PDO::FETCH_OBJ:\PDO::FETCH_ASSOC))) {
                 $resultArray[$i] = $temp;
                 $i++;
             }
