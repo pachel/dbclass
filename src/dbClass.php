@@ -424,7 +424,7 @@ class dbClass
     public function __call($name, $arguments)
     {
         if (method_exists($this, $name)) {
-            return $this->$name($arguments);
+            return $this->$name(...$arguments);
         }
     }
 }
