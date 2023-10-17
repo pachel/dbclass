@@ -20,6 +20,9 @@ class dbClass
 
     private $_RESULT_TYPE;
     private static $self = null;
+    private $_timelog = false;
+    private $_timelogFile = "";
+    private $_time = 0;
     protected $cache = ["time" => 0, "dir" => null];
 
     /**
@@ -116,19 +119,19 @@ class dbClass
             }
 
         }
-
+        $this->starttime($sql,$params);
         $resultArray = array();
         $this->check_params($params, $sql);
         //   echo $sql;
         $result = $this->pdo->prepare($sql);
         $result->execute($params);
-
+        $this->stoptime();
         if ($field == '@flat') {
             if ($result->rowCount()) {
 
-                    while ($temp = $result->fetch(\PDO::FETCH_NUM)) {
-                        $resultArray[] = $temp;
-                    }
+                while ($temp = $result->fetch(\PDO::FETCH_NUM)) {
+                    $resultArray[] = $temp;
+                }
 
                 goto end;
 
@@ -201,10 +204,12 @@ class dbClass
      */
     public function toDatabase($sql, $params = array())
     {
+        $this->starttime($sql,$params);
         $mysql_queryPrepared = $this->pdo->prepare($sql);
         $mysql_queryReturn = $mysql_queryPrepared->execute($params);
         //do we have a db error?
         $err = $mysql_queryReturn;
+        $this->stoptime();
         if (!$err) {
             //error occured, show the error:
             $error = $mysql_queryPrepared->errorInfo();
@@ -404,7 +409,36 @@ class dbClass
     {
         $this->disconnect();
     }
-
+    public function timelog($filename){
+        if(!is_writable($filename)){
+            //     return;
+        }
+        $this->_timelog = true;
+        $this->_timelogFile = $filename;
+    }
+    private function starttime($sql,$params){
+        if(!$this->_timelog){
+            return;
+        }
+        $this->_timeinfo = [
+            "sql"=>$sql,
+            "params"=>$params
+        ];
+        // echo microtime(true);
+        $this->_time = microtime(true);
+    }
+    private function stoptime(){
+        if(!$this->_timelog){
+            return;
+        }
+        $time = round((microtime(true)-$this->_time),4);
+        //file_put_contents($this->_timelogFile,"SQL:>>>".$this->_timeinfo["sql"]."<<<\n",FILE_APPEND);
+        $debug = debug_backtrace();
+        foreach ($debug AS $sor){
+            file_put_contents($this->_timelogFile,"FILE:".$sor["file"].":(".$sor["line"].")".$sor["function"]."()\n",FILE_APPEND);
+        }
+        file_put_contents($this->_timelogFile,"TIME:".$time."s\n",FILE_APPEND);
+    }
     private function get_random_string($count = 10, $chars = "qwertzuioplkjhgfdsayxcvbnm0123456789QWERTZUIOPLKJHGFDSAYXCVBNM")
     {
         $string = "";
@@ -427,4 +461,5 @@ class dbClass
             return $this->$name(...$arguments);
         }
     }
+
 }
