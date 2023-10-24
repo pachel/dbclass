@@ -267,12 +267,15 @@ class dbClass
                 $x++;
             }
             $k = array_keys($id);
-            $query .= " WHERE " . $k[0] . "=:" . $k[0];
-            $array[$k[0]] = $id[$k[0]];
+
+            //$query .= " WHERE " . $k[0] . "=:" . $k[0];
+            $query .= " WHERE " .$this->get_where($id,$array);
+            //$array[$k[0]] = $id[$k[0]];
         }
 
         return $this->toDatabase($query, $array);
     }
+
 
     /**
      * Check if all parameters exists
@@ -385,10 +388,17 @@ class dbClass
         if (is_array($where)) {
             $counter = 0;
             foreach ($where as $index => $value) {
+                $sid = md5($index.mt_rand(0,300));
                 if ($counter > 0) {
                     $string .= " AND ";
                 }
-                $string .= "`" . $index . "`" . (is_numeric($value) ? "=" . $value : " LIKE '" . $value . "'");
+                if(empty($params)){
+                    $string .= "`" . $index . "`" . (is_numeric($value) ? "=" . $value : " LIKE '" . $value."'");
+                }
+                else {
+                    $string .= "`" . $index . "`" . (is_numeric($value) ? "=:" . $sid : " LIKE :" . $sid);
+                    $params[$sid] = $value;
+                }
                 $counter++;
             }
         } else {
