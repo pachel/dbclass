@@ -2,12 +2,15 @@
 namespace Pachel\dbClass\Callbacks;
 class settingsCallback extends CallbackBase{
     public function setResultmodeToArray(){
-        $this->class->setresultmode($this->class::DB_RESULT_TYPE_ARRAY);
+        $this->class->_setresultmode($this->class::DB_RESULT_TYPE_ARRAY);
     }
     public function setResultmodeToObject(){
-        $this->class->setresultmode($this->class::DB_RESULT_TYPE_OBJECT);
+        $this->class->_setresultmode($this->class::DB_RESULT_TYPE_OBJECT);
     }
     public function setResultmodeToDefault(){
-        $this->class->setresultmode($this->class::DB_RESULT_TYPE_DEFAULT);
+        $this->class->_setresultmode($this->class::DB_RESULT_TYPE_DEFAULT);
+    }
+    public function setCache($seconds,$dir){
+        $this->class->_setcache($seconds,$dir);
     }
 }

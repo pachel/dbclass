@@ -6,7 +6,10 @@
 
 namespace Pachel;
 
+use Pachel\dbClass\Callbacks\paramsCallback;
+use Pachel\dbClass\Callbacks\queryCallback;
 use Pachel\dbClass\Callbacks\settingsCallback;
+use Pachel\dbClass\queryData;
 
 class dbClass
 {
@@ -26,6 +29,10 @@ class dbClass
     protected $cache = ["time" => 0, "dir" => null];
 
     /**
+     * @var queryData $_query_info;
+     */
+    private $_query_info;
+    /**
      *
      */
     public static function instance()
@@ -44,13 +51,17 @@ class dbClass
     public function __construct()
     {
         $args = func_get_args();
+        $this->_query_info = new \stdClass();
         $this->_RESULT_TYPE = self::DB_RESULT_TYPE_DEFAULT;
         if (!empty($args)) {
             $this->connect($args[0], (!empty($args[1]) ? $args[1] : []));
         }
     }
 
-    public function setCache($seconds, $dir)
+    protected function _setcache($seconds,$dir){
+        $this->setCache($seconds,$dir);
+    }
+    protected function setCache($seconds, $dir)
     {
         $this->cache = [
             "time" => $seconds,
@@ -64,7 +75,7 @@ class dbClass
      * @param array $db_options
      * @throws \Exception
      */
-    public function connect($db_config, $db_options = [])
+    protected function connect($db_config, $db_options = [])
     {
         $this->check_db_config($db_config);
         $this->pdo = new \PDO($this->db_dsn, $this->db_username, $this->db_password, $db_options);
@@ -77,7 +88,7 @@ class dbClass
         return new datamodell($name, $this);
     }
 
-    public function callModell($className, $param)
+    protected function callModell($className, $param)
     {
 
         $r = new \ReflectionClass($className);
@@ -92,7 +103,7 @@ class dbClass
      * @return array
      * @throws \Exception
      */
-    public function fromDatabase($sql, $field = NULL, $params = [], $id = null)
+    protected function fromDatabase($sql, $field = NULL, $params = [], $id = null)
     {
         if (!$sql) {
             throw new \Exception('sql statement missing!');
@@ -199,10 +210,9 @@ class dbClass
     /**
      * @param
      * $params [array] : array of parameters to substitute
-     *
      * @return: return value of mysql_query
      */
-    public function toDatabase($sql, $params = array())
+    protected function toDatabase($sql, $params = array())
     {
         $this->starttime($sql,$params);
         $mysql_queryPrepared = $this->pdo->prepare($sql);
@@ -217,7 +227,14 @@ class dbClass
         }
         return (true);
     }
-
+    private function objectToArray($object)
+    {
+        $array = [];
+        foreach ($object AS $key=>$value){
+            $array[$key] = $value;
+        }
+        return $array;
+    }
     /**
      * @param $array
      * @param $table
@@ -225,6 +242,11 @@ class dbClass
      */
     private function arrayToDatabase($array, $table, $id = array())
     {
+        if(is_object($array)){
+            $array = $this->objectToArray($array);
+        }if(is_object($id)){
+            $id = $this->objectToArray($id);
+        }
         if (!is_array($array)) {
             throw new \Exception('$array is not Array()');
         }
@@ -272,8 +294,7 @@ class dbClass
             $query .= " WHERE " .$this->get_where($id,$array);
             //$array[$k[0]] = $id[$k[0]];
         }
-        ///echo $query."\n";
-       // print_r($array);
+
         return $this->toDatabase($query, $array);
     }
 
@@ -315,7 +336,8 @@ class dbClass
 
         foreach ($data as $index => $item) {
             check:
-            if (preg_match_all("/:" . $index . "/", $query, $preg)) {
+
+            if (!empty($query) && preg_match_all("/:" . $index . "/", $query, $preg)) {
                 if (count($preg[0]) > 1) {
                     $new_name = $this->get_random_string();
                     $query = preg_replace("/:" . $index . "/", ":" . $new_name, $query, 1);
@@ -357,8 +379,8 @@ class dbClass
      */
     public function delete($table, $where)
     {
-        $sql = "DELETE FROM `" . $table . "` WHERE " . $this->get_where($where);
-        return $this->toDatabase($sql);
+        $sql = "DELETE FROM `" . $table . "` WHERE " . $this->get_where($where,$params);
+        return $this->toDatabase($sql,$params);
     }
 
     /**
@@ -386,6 +408,7 @@ class dbClass
     private function get_where($where, &$params = [])
     {
         $string = "";
+        $params_copy = $params;
         if (is_array($where)) {
             $counter = 0;
             foreach ($where as $index => $value) {
@@ -394,7 +417,9 @@ class dbClass
                     $string .= " AND ";
                 }
                 if(empty($params)){
+                    $params_copy[$sid] =$value;
                     $string .= "`" . $index . "`" . (is_numeric($value) ? "=" . $value : " LIKE '" . $value."'");
+                   // $string .= "`" . $index . "`=:" .$sid;
                 }
                 else {
                     $string .= "`" . $index . "`" . (is_numeric($value) ? "=:" . $sid : " LIKE :" . $sid);
@@ -405,6 +430,7 @@ class dbClass
         } else {
             $string = $where;
         }
+       // $params = $params_copy;
         return $string;
     }
 
@@ -463,7 +489,7 @@ class dbClass
     {
         return $this->pdo->lastInsertId();
     }
-    protected function setresultmode($mode){
+    protected function _setresultmode($mode){
         $this->_RESULT_TYPE = $mode;
     }
     public function __call($name, $arguments)
@@ -472,5 +498,35 @@ class dbClass
             return $this->$name(...$arguments);
         }
     }
+    public function query($sql)
+    {
+        $this->_query_info->query = $sql;
+        $this->_query_info->params = [];
 
+        return new queryCallback($this);
+    }
+    protected function _exec(){
+        return $this->toDatabase($this->_query_info->query,$this->_query_info->params);
+    }
+    protected function _params($params){
+        $this->_query_info->params = $params;
+        return new paramsCallback($this);
+    }
+    protected function _get(string $type)
+    {
+        switch ($type) {
+            case "line":
+                $type = "@line";
+                break;
+            case "simple":
+                $type = "@simple";
+                break;
+            case "numarray":
+                $type = "@array";
+                break;
+            default:
+                $type = "@row";
+        }
+        return $this->fromDatabase($this->_query_info->query, $type,$this->_query_info->params);
+    }
 }
