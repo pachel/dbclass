@@ -521,7 +521,7 @@ class dbClass
             case "simple":
                 $type = "@simple";
                 break;
-            case "numarray":
+            case "array":
                 $type = "@array";
                 break;
             default:

@@ -16,4 +16,8 @@ trait getMethods
     {
         return $this->class->_get("simple");
     }
+    public function array()
+    {
+        return $this->class->_get("array");
+    }
 }
