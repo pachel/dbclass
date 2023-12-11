@@ -508,7 +508,15 @@ class dbClass
     protected function _exec(){
         return $this->toDatabase($this->_query_info->query,$this->_query_info->params);
     }
-    protected function _params($params){
+    protected function _params(){
+        $args = func_get_args();
+        foreach ($args AS $arg){
+            if(is_array($arg)){
+                $params = $arg;
+                break;
+            }
+            $params[] = $arg;
+        }
         $this->_query_info->params = $params;
         return new paramsCallback($this);
     }

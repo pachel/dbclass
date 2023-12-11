@@ -9,8 +9,9 @@ trait params
     /**
      * @return paramsCallback
      */
-    public function params($params):paramsCallback
+    public function params():paramsCallback
     {
-        return $this->class->_params($params);
+        $params = func_get_args();
+        return $this->class->_params(...$params);
     }
 }

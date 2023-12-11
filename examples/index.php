@@ -17,15 +17,16 @@ $db = new dbClass();
 $db->connect($db_config,$db_options);
 
 
-$result = $db->query("SELECT *FROM dolgozok")->line();
-print_r($result);
+//$result = $db->query("SELECT *FROM dolgozok")->line();
+//print_r($result);
 
 $result = $db->query("SELECT *FROM dolgozok WHERE id=:id")->params(["id"=>13])->line();
 print_r($result);
 
-$result = $db->query("SELECT *FROM dolgozok WHERE id=?")->params([16])->line();
+$result = $db->query("SELECT *FROM dolgozok WHERE id=? AND atirt=?")->params(16,0)->line();
 print_r($result);
 
+exit();
 $db->query("UPDATE dolgozok SET nev=? WHERE id=?")->params(["Tóth László",1])->exec();
 
 $result = $db->query("SELECT *FROM dolgozok WHERE id=?")->params([1])->line();
