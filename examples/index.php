@@ -15,7 +15,7 @@ else {
 //$db = Pachel\dbClass::instance();
 $db = new dbClass();
 $db->connect($db_config,$db_options);
-
+$db->settings()->setResultmodeToObject();
 
 //$result = $db->query("SELECT *FROM dolgozok")->line();
 //print_r($result);
@@ -24,6 +24,9 @@ $result = $db->query("SELECT *FROM dolgozok WHERE id=:id")->params(["id"=>13])->
 print_r($result);
 
 $result = $db->query("SELECT *FROM dolgozok WHERE id=? AND atirt=?")->params(16,0)->line();
+print_r($result);
+
+$result = $db->query("SELECT *FROM dolgozok")->rows();
 print_r($result);
 
 exit();
