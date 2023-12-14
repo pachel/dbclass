@@ -17,4 +17,4 @@ $db = new dbClass();
 $db->connect($db_config,$db_options);
 $db->settings()->setResultmodeToObject();
 
-$db->settings()->generateModelClass("dolgozok",__DIR__."/../temp/dologozok.php");
+$db->settings()->generateModelClass("__users", __DIR__ . "/../temp/__users.php");

@@ -1,6 +1,8 @@
 <?php
 
 namespace Pachel\dbClass\Callbacks;
+use Pachel\dbClass\Traits\callMethod;
+
 abstract class CallbackBase
 {
     protected $class = "";
@@ -10,13 +12,8 @@ abstract class CallbackBase
     {
         $this->class = $class;
     }
-
     public function __call(string $name, array $arguments)
     {
-
-        //   $this->class = get_called_class();
-        //$arguments = array_merge($this->arguments, $arguments);
         return $this->class->$name(...$arguments);
-
     }
 }

@@ -5,18 +5,47 @@ ini_set("display_errors",true);
 use Pachel\dbClass;
 
 require_once __DIR__."/../vendor/autoload.php";
+
+require __DIR__."/inc/dolgozokModel.php";
+require __DIR__."/inc/__users.php";
+
 if(file_exists(__DIR__."/inc/dev_config.php")){
     require_once __DIR__ . "/inc/dev_config.php";
 }
 else {
     require_once __DIR__ . "/inc/config.php";
 }
-
+/*
+$vezeteknevek = ["Fekete","Fehér","Barna","Sárga","Kék","Lila","Rózsaszín","Piros","Zöld"];
+$keresztnevek = ["Sanyi","Géza","Ildi","Imi","Feri","Laci","Gizi","Piros","Sanya","Niki","Réka","Lili","Anna"];
+for($x=0;$x<50;$x++){
+    $nev = $vezeteknevek[mt_rand(0,count($vezeteknevek)-1)]." ".$keresztnevek[mt_rand(0,count($keresztnevek)-1)];
+    echo "INSERT INTO `__users` (`name`,`type`,`email`) VALUES ('".$nev."','".mt_rand(0,10)."','".str_replace(" ","@",$nev).".fake');\n";
+}*/
 //$db = Pachel\dbClass::instance();
 $db = new dbClass();
 $db->connect($db_config,$db_options);
 $db->settings()->setResultmodeToObject();
 
+/**
+ * @var __usersDataModel $user
+ */
+$user = new stdClass();
+$usersModel = new __usersModel($db);
+$d = $usersModel->getById(2);
+echo $d->name;
+
+$e = $usersModel->equal()->type(1);
+print_r($e);
+$e = $usersModel->equal()->id(42);
+print_r($e);
+$e = $usersModel->like()->email("lila");
+print_r($e);
+$e = $usersModel->like()->name("Barna");
+print_r($e);
+
+
+exit();
 //$result = $db->query("SELECT *FROM dolgozok")->line();
 //print_r($result);
 
@@ -71,6 +100,3 @@ $result = $db->fromDatabase("SELECT * FROM users WHERE name LIKE :name OR name L
 print_r($result);
 
 */
-class tt{
-    public string $nev;
-}
