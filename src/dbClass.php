@@ -9,17 +9,19 @@ namespace Pachel;
 use Pachel\dbClass\Callbacks\paramsCallback;
 use Pachel\dbClass\Callbacks\queryCallback;
 use Pachel\dbClass\Callbacks\settingsCallback;
+use Pachel\dbClass\Models\fieldList;
 use Pachel\dbClass\queryData;
+use Pachel\dbClass\Traits\settingsMethods;
 
 class dbClass
 {
 
     protected $db_username = "", $db_password = "", $db_dsn = "";
     protected $pdo;
-    const
+    public const
         DB_RESULT_TYPE_ARRAY    = 0,
-        DB_RESULT_TYPE_OBJECT   = 1,
-        DB_RESULT_TYPE_DEFAULT   = 0;
+        DB_RESULT_TYPE_OBJECT   = 1;
+    public static $DB_RESULT_TYPE_DEFAULT = 0;
 
     private $_RESULT_TYPE;
     private static $self = null;
@@ -35,6 +37,7 @@ class dbClass
     /**
      *
      */
+    use settingsMethods;
     public static function instance()
     {
 
@@ -52,7 +55,7 @@ class dbClass
     {
         $args = func_get_args();
         $this->_query_info = new \stdClass();
-        $this->_RESULT_TYPE = self::DB_RESULT_TYPE_DEFAULT;
+        $this->_RESULT_TYPE = self::$DB_RESULT_TYPE_DEFAULT;
         if (!empty($args)) {
             $this->connect($args[0], (!empty($args[1]) ? $args[1] : []));
         }
@@ -488,9 +491,6 @@ class dbClass
     public function last_insert_id()
     {
         return $this->pdo->lastInsertId();
-    }
-    protected function _setresultmode($mode){
-        $this->_RESULT_TYPE = $mode;
     }
     public function __call($name, $arguments)
     {

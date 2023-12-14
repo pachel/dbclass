@@ -7,10 +7,21 @@ class settingsCallback extends CallbackBase{
     public function setResultmodeToObject(){
         $this->class->_setresultmode($this->class::DB_RESULT_TYPE_OBJECT);
     }
+
+    /**
+     * @param int $resultMode
+     * @return void
+     */
+    public function setDefaultResultMode(int $resultMode){
+        $this->class->_setresultdefault($resultMode);
+    }
     public function setResultmodeToDefault(){
-        $this->class->_setresultmode($this->class::DB_RESULT_TYPE_DEFAULT);
+        $this->class->_setresultmode($this->class::$DB_RESULT_TYPE_DEFAULT);
     }
     public function setCache($seconds,$dir){
         $this->class->_setcache($seconds,$dir);
+    }
+    public function generateModelClass($table,$filename){
+        $this->class->_modelgeneral($table,$filename);
     }
 }

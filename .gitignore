@@ -1,7 +1,7 @@
 .idea
 vendor/
 composer.lock
-temp
+temp/*
 nbproject/
 inc/config.php
 local/
