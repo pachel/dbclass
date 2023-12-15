@@ -44,6 +44,12 @@ print_r($e);
 $e = $usersModel->like()->name("Barna");
 print_r($e);
 
+$user = $usersModel->select(["type"=>1])->rows();
+foreach ($user AS $sd){
+
+}
+
+
 
 exit();
 //$result = $db->query("SELECT *FROM dolgozok")->line();

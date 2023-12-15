@@ -94,7 +94,9 @@ abstract class dataModel
         return $this->db->update($this->_tablename, $this->_data_tmp,$where);
     }
     protected function select($where){
-        return $this->db->select($this->_tablename,$where);
+        $this->_data_tmp = $where;
+        return new dbClass\dataModel\callBacks\selectCallback($this);
+        //return $this->db->select($this->_tablename,$where);
     }
     /**
      * @param $data
@@ -149,5 +151,24 @@ abstract class dataModel
     }
     protected function equal(){
         return new $this->_equalclass($this);
+    }
+    protected function _get(string $type)
+    {
+        switch ($type) {
+            case "line":
+                $type = "@line";
+                break;
+            case "simple":
+                $type = "@simple";
+                break;
+            case "array":
+                $type = "@array";
+                break;
+            default:
+                $type = "@row";
+        }
+        $params = [];
+        $where = $this->db->get_where($this->_data_tmp,$params);
+        return $this->db->fromDatabase("SELECT *FROM `".$this->_tablename."` WHERE ".$where, $type,$params);
     }
 }

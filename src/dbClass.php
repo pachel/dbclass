@@ -397,7 +397,7 @@ class dbClass
      * @param array $params
      * @return string
      */
-    private function get_where($where, &$params = [])
+    protected function get_where($where, &$params = [])
     {
         $string = "";
         $params_copy = $params;

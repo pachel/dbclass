@@ -6,7 +6,7 @@ use Pachel\dbClass\dataModel\Traits\LikeMethods;
 
 /**
  * @method __usersDataModel getById(int $id)
- * @method __usersDataModel[] select(array|object $where)
+ * @method __usersSelectCBclass select(array|object $where)
  * @method __usersModelEqualSelect like()
  * @method __usersModelEqualSelect equal()
  * ...
@@ -89,4 +89,13 @@ class __usersModelEqualSelect extends CallbackBase {
  */
 class __usersModelLikeSelect extends CallbackBase {
     use LikeMethods;
+}
+
+/**
+ * @method __usersDataModel[] rows()
+ * @method __usersDataModel line()
+ * @method mixed simple()
+ */
+abstract class __usersSelectCBclass{
+
 }
