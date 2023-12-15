@@ -24,7 +24,7 @@ for($x=0;$x<50;$x++){
 }*/
 //$db = Pachel\dbClass::instance();
 $db = new dbClass();
-$db->connect($db_config,$db_options);
+$db->settings()->connect($db_config,$db_options);
 $db->settings()->setResultmodeToObject();
 
 /**

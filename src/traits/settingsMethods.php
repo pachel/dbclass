@@ -6,70 +6,113 @@ use Pachel\dbClass\Models\fieldList;
 
 trait settingsMethods
 {
-    private function _modelgeneral($table,$filename,$classname = null){
+    private function _modelgeneral($table, $filename, $classname = null)
+    {
         /**
          * @var fieldList[] $result
          */
-        $sql = "SHOW COLUMNS FROM `".$table."`";
+        $sql = "SHOW COLUMNS FROM `" . $table . "`";
         $this->settings()->setResultmodeToObject();
         $result = $this->query($sql)->rows();
         $this->settings()->setResultmodeToDefault();
-        if(empty($result)){
+        if (empty($result)) {
             return;
         }
-        if($classname == null){
+        if ($classname == null) {
             $classname = $table;
         }
         $text = "";
         $equal = "";
         $like = "";
-        foreach ($result AS $sor){
+        foreach ($result as $sor) {
             $text .= "\t/**\n";
-            if($sor->Key == "PRI"){
+            if ($sor->Key == "PRI") {
                 $key = $sor->Field;
-                $text.="\t* Primary ID ----------------------------------------\n";
+                $text .= "\t* Primary ID ----------------------------------------\n";
             }
             $type = $this->getType($sor->Type);
-            $text.= "\t* @var ".$type." \$".$sor->Field.";\n\t**/\n";
-            $text.="\tpublic \$".$sor->Field.";\n";
-            if($this->isNum($type)){
-                $equal.=" * @method ".$classname."DataModel[] ".$sor->Field."(".$type." \$".$sor->Field.")\n";
-            }
-            else{
-                $equal.=" * @method ".$classname."DataModel[] ".$sor->Field."(".$type." \$".$sor->Field.")\n";
-                $like.=" * @method ".$classname."DataModel[] ".$sor->Field."(".$type." \$".$sor->Field.")\n";
+            $text .= "\t* @var " . $type . " \$" . $sor->Field . ";\n\t**/\n";
+            $text .= "\tpublic \$" . $sor->Field . ";\n";
+            if ($this->isNum($type)) {
+                $equal .= " * @method " . $classname . "DataModel[] " . $sor->Field . "(" . $type . " \$" . $sor->Field . ")\n";
+            } else {
+                $equal .= " * @method " . $classname . "DataModel[] " . $sor->Field . "(" . $type . " \$" . $sor->Field . ")\n";
+                $like .= " * @method " . $classname . "DataModel[] " . $sor->Field . "(" . $type . " \$" . $sor->Field . ")\n";
             }
         }
 
-        $content = str_replace(["#datum","#table","#primary","#variables","#classname","#equalmethods","#likemethods"],[date("Y-m-d H:i"),$table,$key,$text,$classname,$equal,$like],file_get_contents(__DIR__."/../tpl/modelclass.tpl"));
-        file_put_contents($filename,$content);
+        $content = str_replace(["#datum", "#table", "#primary", "#variables", "#classname", "#equalmethods", "#likemethods"], [date("Y-m-d H:i"), $table, $key, $text, $classname, $equal, $like], file_get_contents(__DIR__ . "/../tpl/modelclass.tpl"));
+        file_put_contents($filename, $content);
     }
-    private function isNum($type){
-        if(preg_match("/^int|double|float|bigint|smallint$/i",$type)){
+
+    private function isNum($type)
+    {
+        if (preg_match("/^int|double|float|bigint|smallint$/i", $type)) {
             return true;
         }
         return false;
     }
-    private function getType($type):string{
+
+    private function getType($type): string
+    {
         $return = "string";
-        preg_match("/([a-z]+)/",$type,$preg);
-        if(preg_match("/int/",$preg[1])){
+        preg_match("/([a-z]+)/", $type, $preg);
+        if (preg_match("/int/", $preg[1])) {
             $return = "int";
         }
-        switch ($preg[1]){
-            case "int": $return = "int";break;
-            case "double": $return = "float";break;
-            case "float": $return = "float";break;
+        switch ($preg[1]) {
+            case "int":
+                $return = "int";
+                break;
+            case "double":
+                $return = "float";
+                break;
+            case "float":
+                $return = "float";
+                break;
         }
 
 
         return $return;
     }
 
-    protected function _setresultmode($mode){
+    protected function _setresultmode(int $mode)
+    {
         $this->_RESULT_TYPE = $mode;
     }
-    protected function _setresultdefault($mode){
-        self::$DB_RESULT_TYPE_DEFAULT = $mode;
+
+    protected function _setresultdefault(int $mode)
+    {
+        $this->DB_RESULT_TYPE_DEFAULT = $mode;
+    }
+
+    protected function _setcache($seconds, $dir)
+    {
+        $this->setCache($seconds, $dir);
+    }
+    protected function timelog($filename){
+        if(!is_writable($filename)){
+                 return;
+        }
+        $this->_timelog = true;
+        $this->_timelogFile = $filename;
+    }
+    /**
+     *
+     * @param $db_config
+     * @param array $db_options
+     * @throws \Exception
+     */
+    protected function connect($db_config, $db_options = [])
+    {
+        $this->check_db_config($db_config);
+        $this->pdo = new \PDO($this->db_dsn, $this->db_username, $this->db_password, $db_options);
+    }
+    /**
+     * Connection disconnect
+     */
+    protected function disconnect()
+    {
+        $this->pdo = null;
     }
 }

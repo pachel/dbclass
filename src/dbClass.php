@@ -21,7 +21,7 @@ class dbClass
     public const
         DB_RESULT_TYPE_ARRAY    = 0,
         DB_RESULT_TYPE_OBJECT   = 1;
-    public static $DB_RESULT_TYPE_DEFAULT = 0;
+    protected $DB_RESULT_TYPE_DEFAULT = 0;
 
     private $_RESULT_TYPE;
     private static $self = null;
@@ -55,15 +55,12 @@ class dbClass
     {
         $args = func_get_args();
         $this->_query_info = new \stdClass();
-        $this->_RESULT_TYPE = self::$DB_RESULT_TYPE_DEFAULT;
+        $this->_RESULT_TYPE = $this->DB_RESULT_TYPE_DEFAULT;
         if (!empty($args)) {
             $this->connect($args[0], (!empty($args[1]) ? $args[1] : []));
         }
     }
 
-    protected function _setcache($seconds,$dir){
-        $this->setCache($seconds,$dir);
-    }
     protected function setCache($seconds, $dir)
     {
         $this->cache = [
@@ -72,21 +69,11 @@ class dbClass
         ];
     }
 
-    /**
-     *
-     * @param $db_config
-     * @param array $db_options
-     * @throws \Exception
-     */
-    protected function connect($db_config, $db_options = [])
-    {
-        $this->check_db_config($db_config);
-        $this->pdo = new \PDO($this->db_dsn, $this->db_username, $this->db_password, $db_options);
-    }
+
     public function settings(){
         return new settingsCallback($this);
     }
-    public function getModell($name)
+    protected function getModell($name)
     {
         return new datamodell($name, $this);
     }
@@ -437,25 +424,13 @@ class dbClass
         return $string;
     }
 
-    /**
-     * Connection disconnect
-     */
-    public function disconnect()
-    {
-        $this->pdo = null;
-    }
+
 
     public function __destruct()
     {
         $this->disconnect();
     }
-    public function timelog($filename){
-        if(!is_writable($filename)){
-            //     return;
-        }
-        $this->_timelog = true;
-        $this->_timelogFile = $filename;
-    }
+
     private function starttime($sql,$params){
         if(!$this->_timelog){
             return;
@@ -472,7 +447,6 @@ class dbClass
             return;
         }
         $time = round((microtime(true)-$this->_time),4);
-        //file_put_contents($this->_timelogFile,"SQL:>>>".$this->_timeinfo["sql"]."<<<\n",FILE_APPEND);
         $debug = debug_backtrace();
         foreach ($debug AS $sor){
             file_put_contents($this->_timelogFile,"FILE:".$sor["file"].":(".$sor["line"].")".$sor["function"]."()\n",FILE_APPEND);
