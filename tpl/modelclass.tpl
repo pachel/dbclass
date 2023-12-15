@@ -46,7 +46,7 @@ class #classnameModel extends dataModel{
 
     protected $_equalclass  = #classnameModelEqualSelect::class;
 }
-class #classnameDataModel{
+class #classnameDataModel {
 #variables
 }
 

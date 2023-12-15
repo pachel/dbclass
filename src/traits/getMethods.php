@@ -20,4 +20,7 @@ trait getMethods
     {
         return $this->class->_get("array");
     }
+    public function saveToClass(){
+        $this->class->_saveToClass();
+    }
 }

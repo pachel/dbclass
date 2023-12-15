@@ -28,9 +28,18 @@ $db->settings()->connect($db_config,$db_options);
 $db->settings()->setResultmodeToObject();
 
 /**
+ * @var _line33_index_php_bf69f[] $d
+ */
+$d = $db->query("SELECT * FROM __users WHERE type=1")->rows();
+foreach ($d AS $f){
+    echo $f->type."\n";
+    echo $f->name."\n";
+}
+/**
  * @var __usersDataModel $user
  */
 $user = new stdClass();
+
 $usersModel = new __usersModel($db);
 $d = $usersModel->getById(2);
 echo $d->name;

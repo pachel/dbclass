@@ -12,6 +12,7 @@ use Pachel\dbClass\Callbacks\settingsCallback;
 use Pachel\dbClass\dataModel\Traits\setget;
 use Pachel\dbClass\Models\fieldList;
 use Pachel\dbClass\queryData;
+use Pachel\dbClass\Traits\saveToClass;
 use Pachel\dbClass\Traits\settingsMethods;
 
 class dbClass
@@ -35,11 +36,14 @@ class dbClass
      * @var queryData $_query_info;
      */
     private $_query_info;
+
+    private $_saveClassDir;
     /**
      *
      */
     use settingsMethods;
     use setget;
+    use saveToClass;
     public static function instance()
     {
 
@@ -313,6 +317,9 @@ class dbClass
             if (!isset($config[$index])) {
                 $config[$index] = $value;
             }
+        }
+        if(isset($config["saveClassDir"]) && is_dir($config["saveClassDir"])){
+            $this->_saveClassDir = $config["saveClassDir"];
         }
         $this->db_username = $config["username"];
         $this->db_password = $config["password"];
