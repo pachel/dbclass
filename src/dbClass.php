@@ -9,6 +9,7 @@ namespace Pachel;
 use Pachel\dbClass\Callbacks\paramsCallback;
 use Pachel\dbClass\Callbacks\queryCallback;
 use Pachel\dbClass\Callbacks\settingsCallback;
+use Pachel\dbClass\dataModel\Traits\setget;
 use Pachel\dbClass\Models\fieldList;
 use Pachel\dbClass\queryData;
 use Pachel\dbClass\Traits\settingsMethods;
@@ -38,6 +39,7 @@ class dbClass
      *
      */
     use settingsMethods;
+    use setget;
     public static function instance()
     {
 
@@ -511,4 +513,5 @@ class dbClass
         }
         return $this->fromDatabase($this->_query_info->query, $type,$this->_query_info->params);
     }
+
 }
