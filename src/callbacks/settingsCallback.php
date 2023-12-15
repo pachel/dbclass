@@ -16,7 +16,7 @@ class settingsCallback extends CallbackBase{
         $this->class->_setresultdefault($resultMode);
     }
     public function setResultmodeToDefault(){
-        $this->class->_setresultmode($this->class::$DB_RESULT_TYPE_DEFAULT);
+        $this->class->_setresultmode($this->class->DB_RESULT_TYPE_DEFAULT);
     }
     public function setCache($seconds,$dir){
         $this->class->_setcache($seconds,$dir);
