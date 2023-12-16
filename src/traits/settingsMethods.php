@@ -35,7 +35,7 @@ trait settingsMethods
         $equal = "";
         $like = "";
         foreach ($result as $sor) {
-            $text .= "/**\n";
+           // $text .= "/**\n";
             if ($sor->Key == "PRI") {
                 $key = $sor->Field;
                 $text .= " * Primary ID ----------------------------------------\n";
