@@ -21,8 +21,8 @@ class settingsCallback extends CallbackBase{
     public function setCache($seconds,$dir){
         $this->class->_setcache($seconds,$dir);
     }
-    public function generateModelClass($table,$filename){
-        $this->class->_modelgeneral($table,$filename);
+    public function generateModelClass($table,$filename=null,$classname=null){
+        $this->class->_modelgeneral($table,$filename,$classname);
     }
     public function timelog($filename){
         $this->class->timelog($filename);

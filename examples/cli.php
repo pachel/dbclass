@@ -13,8 +13,6 @@ else {
 }
 
 //$db = Pachel\dbClass::instance();
-$db = new dbClass();
-$db->connect($db_config,$db_options);
+$db = new dbClass($db_config,$db_options);
 $db->settings()->setResultmodeToObject();
-
-$db->settings()->generateModelClass("__users", __DIR__ . "/../temp/__users.php");
+$db->settings()->generateModelClass("__users");

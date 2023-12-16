@@ -2,11 +2,12 @@
 
 namespace Pachel\dbClass\Traits;
 
+use mysql_xdevapi\Exception;
 use Pachel\dbClass\Models\fieldList;
 
 trait settingsMethods
 {
-    private function _modelgeneral($table, $filename, $classname = null)
+    private function _modelgeneral($table, $filename = null, $classname = null)
     {
         /**
          * @var fieldList[] $result
@@ -21,6 +22,15 @@ trait settingsMethods
         if ($classname == null) {
             $classname = $table;
         }
+        if($filename == null){
+            if(empty($this->_modelDir) || !is_dir($this->_modelDir)){
+                throw new Exception("A mentés mappája nincs paraméterezve");
+            }
+            $filename = $this->_modelDir."_".$classname."Model.php";
+        }
+        if(is_file($filename)){
+            new Exception("A ".$filename." már létezik!");
+        }
         $text = "";
         $equal = "";
         $like = "";
@@ -31,8 +41,8 @@ trait settingsMethods
                 $text .= "\t* Primary ID ----------------------------------------\n";
             }
             $type = $this->getType($sor->Type);
-            $text .= "\t* @var " . $type . " \$" . $sor->Field . ";\n\t**/\n";
-            $text .= "\tpublic \$" . $sor->Field . ";\n";
+            $text .= " * @var " . $type . " \$" . $sor->Field . "\n";
+           // $text .= "\tpublic \$" . $sor->Field . ";\n";
             if ($this->isNum($type)) {
                 $equal .= " * @method " . $classname . "DataModel[] " . $sor->Field . "(" . $type . " \$" . $sor->Field . ")\n";
             } else {
@@ -41,7 +51,7 @@ trait settingsMethods
             }
         }
 
-        $content = str_replace(["#datum", "#table", "#primary", "#variables", "#classname", "#equalmethods", "#likemethods"], [date("Y-m-d H:i"), $table, $key, $text, $classname, $equal, $like], file_get_contents(__DIR__ . "/../tpl/modelclass.tpl"));
+        $content = str_replace(["#datum", "#table", "#primary", "#variables", "#classname", "#equalmethods", "#likemethods"], [date("Y-m-d H:i"), $table, $key, $text, $classname, $equal, $like], file_get_contents(__DIR__ . "/../../tpl/modelclass.tpl"));
         file_put_contents($filename, $content);
     }
 

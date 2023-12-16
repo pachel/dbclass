@@ -1,8 +1,8 @@
 <?php
-use Pachel\dbClass\Callbacks\CallbackBase;
-use Pachel\dbClass\dataModel\dataModel;
-use Pachel\dbClass\dataModel\Traits\EqualMethods;
-use Pachel\dbClass\dataModel\Traits\LikeMethods;
+use \Pachel\dbClass\Callbacks\CallbackBase;
+use \Pachel\dbClass\dataModel\dataModel;
+use \Pachel\dbClass\dataModel\Traits\EqualMethods;
+use \Pachel\dbClass\dataModel\Traits\LikeMethods;
 
 /**
  * @method __usersDataModel getById(int $id)

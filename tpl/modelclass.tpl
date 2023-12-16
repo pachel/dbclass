@@ -1,8 +1,10 @@
 <?php
-use Pachel\dbClass\Callbacks\CallbackBase;
-use Pachel\dbClass\dataModel\dataModel;
-use Pachel\dbClass\dataModel\Traits\EqualMethods;
-use Pachel\dbClass\dataModel\Traits\LikeMethods;
+namespace Pachel\generatedModels;
+
+use \Pachel\dbClass\Callbacks\CallbackBase;
+use \Pachel\dbClass\dataModel\dataModel;
+use \Pachel\dbClass\dataModel\Traits\EqualMethods;
+use \Pachel\dbClass\dataModel\Traits\LikeMethods;
 
 /**
  * @method #classnameDataModel getById(int $id)
@@ -46,8 +48,11 @@ class #classnameModel extends dataModel{
 
     protected $_equalclass  = #classnameModelEqualSelect::class;
 }
-class #classnameDataModel {
+/**
 #variables
+*/
+class #classnameDataModel extends \stdClass{
+
 }
 
 /**

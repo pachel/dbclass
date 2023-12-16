@@ -38,6 +38,7 @@ class dbClass
     private $_query_info;
 
     private $_saveClassDir;
+    private $_modelDir;
     /**
      *
      */
@@ -48,7 +49,6 @@ class dbClass
     {
 
         if (empty(self::$self)) {
-
             $ref = new \Reflectionclass("Pachel\dbClass");
             $args = func_get_args();
             self::$self = ($args ? $ref->newinstanceargs($args) : new dbClass());
@@ -61,9 +61,15 @@ class dbClass
     {
         $args = func_get_args();
         $this->_query_info = new \stdClass();
-        $this->_RESULT_TYPE = $this->DB_RESULT_TYPE_DEFAULT;
+
         if (!empty($args)) {
             $this->connect($args[0], (!empty($args[1]) ? $args[1] : []));
+        }
+        else{
+            if(class_exists("Pachel\\EasyFrameWork\\Base")){
+                $d = \Pachel\EasyFrameWork\Base::instance()->env("PDBCLASS");
+                $this->connect($d["SERVER"], (!empty($d["OPTIONS"]) ? $d["OPTIONS"] : []));
+            }
         }
     }
 
@@ -304,12 +310,17 @@ class dbClass
     private function check_db_config(&$config)
     {
         $default_config = [
-            "host" => "localhost",
-            "dbname" => "",
-            "charset" => "utf8",
-            "username" => "",
-            "password" => ""
+            "HOST" => "localhost",
+            "DBNAME" => "",
+            "CHARSET" => "utf8",
+            "USERNAME" => "",
+            "PASSWORD" => ""
         ];
+        $c  = [];
+        foreach ($config as $index => $value){
+            $c[strtoupper($index)] = $value;
+        }
+        $config = $c;
         foreach ($default_config as $index => $value) {
             if (!isset($config[$index]) && empty($value)) {
                 throw new \Exception($index . " in parameterlist not found");
@@ -318,12 +329,27 @@ class dbClass
                 $config[$index] = $value;
             }
         }
-        if(isset($config["saveClassDir"]) && is_dir($config["saveClassDir"])){
-            $this->_saveClassDir = $config["saveClassDir"];
+        if(isset($config["DEFAULT_RESULT_MODE"]) && is_numeric($config["DEFAULT_RESULT_MODE"])){
+            $this->settings()->setDefaultResultMode($config["DEFAULT_RESULT_MODE"]);
         }
-        $this->db_username = $config["username"];
-        $this->db_password = $config["password"];
-        $this->db_dsn = 'mysql:host=' . $config['host'] . ';dbname=' . $config['dbname'] . ";charset=" . $config['charset'];
+
+        $this->_RESULT_TYPE = $this->DB_RESULT_TYPE_DEFAULT;
+
+        if(isset($config["SAVECLASSDIR"]) && is_dir($config["SAVECLASSDIR"])){
+            $this->_saveClassDir = $this->checkSlash($config["SAVECLASSDIR"]);
+        }
+        if(isset($config["MODELDIR"]) && is_dir($config["MODELDIR"])){
+            $this->_modelDir = $this->checkSlash($config["MODELDIR"]);
+        }
+        $this->db_username = $config["USERNAME"];
+        $this->db_password = $config["PASSWORD"];
+        $this->db_dsn = 'mysql:host=' . $config['HOST'] . ';dbname=' . $config['DBNAME'] . ";charset=" . $config['CHARSET'];
+    }
+    private function checkSlash($dir) {
+        if (mb_substr($dir, strlen($dir) - 1, 1) == "/") {
+            return $dir;
+        }
+        return $dir . "/";
     }
 
     /**
