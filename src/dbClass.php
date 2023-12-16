@@ -116,6 +116,8 @@ class dbClass
             $params = $field;
             $field = $tmp;
         }
+        $params = $this->objectToArray($params);
+
         if ($this->cache["time"] > 0) {
             if(!is_dir($this->cache["dir"])){
                 mkdir($this->cache["dir"]);
@@ -526,6 +528,9 @@ class dbClass
         foreach ($args AS $arg){
             if(is_array($arg)){
                 $params = $arg;
+                break;
+            }elseif(is_object($arg)){
+                $params = $this->objectToArray($arg);
                 break;
             }
             $params[] = $arg;
