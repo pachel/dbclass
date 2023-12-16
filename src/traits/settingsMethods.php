@@ -35,13 +35,13 @@ trait settingsMethods
         $equal = "";
         $like = "";
         foreach ($result as $sor) {
-            $text .= "\t/**\n";
+            $text .= "/**\n";
             if ($sor->Key == "PRI") {
                 $key = $sor->Field;
-                $text .= "\t* Primary ID ----------------------------------------\n";
+                $text .= " * Primary ID ----------------------------------------\n";
             }
             $type = $this->getType($sor->Type);
-            $text .= " * @var " . $type . " \$" . $sor->Field . "\n";
+            $text .= " * @property " . $type . " \$" . $sor->Field . "\n";
            // $text .= "\tpublic \$" . $sor->Field . ";\n";
             if ($this->isNum($type)) {
                 $equal .= " * @method " . $classname . "DataModel[] " . $sor->Field . "(" . $type . " \$" . $sor->Field . ")\n";
