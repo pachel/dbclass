@@ -24,12 +24,12 @@ trait settingsMethods
         }
         if($filename == null){
             if(empty($this->_modelDir) || !is_dir($this->_modelDir)){
-                throw new Exception("A mentés mappája nincs paraméterezve");
+                new \Exception("A mentés mappája nincs paraméterezve");
             }
             $filename = $this->_modelDir."_".$classname."Model.php";
         }
         if(is_file($filename)){
-            new Exception("A ".$filename." már létezik!");
+            new \Exception("A ".$filename." már létezik!");
         }
         $text = "";
         $equal = "";
