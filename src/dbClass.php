@@ -231,6 +231,9 @@ class dbClass
     }
     private function objectToArray($object)
     {
+        if(is_array($object)){
+            return $object;
+        }
         $array = [];
         foreach ($object AS $key=>$value){
             $array[$key] = $value;
@@ -427,13 +430,14 @@ class dbClass
 
     /**
      * @param $where
-     * @param array $params
+     * @param array|object $params
      * @return string
      */
     protected function get_where($where, &$params = [])
     {
         $string = "";
         $params_copy = $params;
+        $where = $this->objectToArray($where);
         if (is_array($where)) {
             $counter = 0;
             foreach ($where as $index => $value) {
