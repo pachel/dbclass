@@ -49,7 +49,7 @@ class dbClass
     {
 
         if (empty(self::$self)) {
-            $ref = new \Reflectionclass("Pachel\dbClass");
+            $ref = new \Reflectionclass(dbClass::class);
             $args = func_get_args();
             self::$self = ($args ? $ref->newinstanceargs($args) : new dbClass());
         }
@@ -136,8 +136,9 @@ class dbClass
         }
         $this->starttime($sql,$params);
         $resultArray = array();
+
         $this->check_params($params, $sql);
-        //   echo $sql;
+
         $result = $this->pdo->prepare($sql);
         $result->execute($params);
         $this->stoptime();
@@ -156,7 +157,7 @@ class dbClass
         }
         if ($field == '@simple') {
             if ($result->rowCount()) {
-                $temp = $result->fetch(($this->_RESULT_TYPE == self::DB_RESULT_TYPE_OBJECT?\PDO::FETCH_OBJ:\PDO::FETCH_ASSOC));
+                $temp = $result->fetch(\PDO::FETCH_ASSOC);
                 $resultArray = array_values($temp);
                 $resultArray = $resultArray[0];
                 goto end;
@@ -363,6 +364,7 @@ class dbClass
      */
     private function check_params(&$data, &$query = null)
     {
+
 
         foreach ($data as $index => $item) {
             check:

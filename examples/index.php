@@ -31,10 +31,12 @@ $db->settings()->setResultmodeToObject();
  * @var _line33_index_php_bf69f[] $d
  */
 $d = $db->query("SELECT * FROM __users WHERE type=1")->rows();
+print_r($d);
 foreach ($d AS $f){
     echo $f->type."\n";
     echo $f->name."\n";
 }
+exit();
 /**
  * @var __usersDataModel $user
  */
