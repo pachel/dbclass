@@ -46,6 +46,14 @@ class dbClassTest extends TestCase
         $user = $this->db->query("SELECT *FROM __users")->line();
         $isObject = is_object($user);
         $this->assertTrue($isObject, "Visszatérési érték mód átállítva: DB_RESULT_TYPE_OBJECT");
+
+        $users = $this->db->query("SELECT *FROM __users")->rows();
+        $this->assertIsArray($users,"Lekérdezés ok!");
+
+        foreach ($users AS $user){
+            $this->assertIsObject($user,"Az elemek objektumok");
+            break;
+        }
     }
 
     /**
@@ -110,7 +118,14 @@ class dbClassTest extends TestCase
         $data = new \stdClass();
         $data->name = $nev;
         $this->db->update("__users",$data,["id"=>$id]);
-        $user = $this->db->query("SELECT name FROM __users WHERE id=?")->params($id)->simple();
+        $user = $this->db->query("SELECT name FROM __users WHERE id=? AND name=?")->params([$id,$data->name])->simple();
+        $this->assertEquals($user,$nev,"UPDATE Objektum paraméterrel");
+
+        /**
+         * Itt a paraméterlista nem tömb, hanem csak vesszővel elválasztott lista
+         * Ezt is tesztelni kell
+         */
+        $user = $this->db->query("SELECT name FROM __users WHERE id=? AND name=?")->params($id,$data->name)->simple();
         $this->assertEquals($user,$nev,"UPDATE Objektum paraméterrel");
 
         $nev = md5(time().microtime());
@@ -119,7 +134,79 @@ class dbClassTest extends TestCase
         $data = new \stdClass();
         $data->name = $nev;
         $this->db->update("__users",$data,$where);
+
         $user = $this->db->query("SELECT name FROM __users WHERE id=:id")->params($where)->simple();
         $this->assertEquals($user,$nev,"UPDATE Objektum paraméterrel és objektum feltétellel");
+
+        $where->name = $user;
+        $user = $this->db->query("SELECT name FROM __users WHERE id=:id AND name=:name AND name=:name")->params($where)->simple();
+        $this->assertEquals($user,$nev,"UPDATE Objektum paraméterrel és objektum feltétellel");
+    }
+
+    /**
+     * @covers
+     * @return void
+     */
+    public function test_ModelTest(){
+        $userModel = new __usersModel($this->db);
+        $data = $this->newUserData(false);
+        $ret = $userModel->insert($data);
+        $uid = $userModel->lastInsertId();
+
+        $this->assertTrue($ret,"Insert működik");
+
+        $this->assertTrue(is_numeric($uid),"A last_insert_id numerikus");
+
+        $user = $userModel->select($data)->line();
+        self::assertEquals($data->name,$user->name,"A név is egyezik");
+
+        $data = $this->newUserData();
+        $ret = $userModel->update($data)->id($uid);
+        $this->assertTrue($ret,"Update működik");
+        $user = $userModel->getById($uid);
+        $this->assertEquals($user->name,$data["name"],"GetById is működik");
+
+        $data = $this->newUserData();
+        $ret = $userModel->update($data)->where(["id"=>$uid]);
+        $this->assertTrue($ret,"Update where-vel működik");
+        $user = $userModel->getById($uid);
+        $this->assertEquals($user->name,$data["name"],"GetById is működik");
+
+        $data = $this->newUserData();
+        $where = new stdClass();
+        $where->id=$uid;
+        $ret = $userModel->update($data)->where($where);
+        $this->assertTrue($ret,"Update működik");
+        $user = $userModel->getById($uid);
+        $this->assertEquals($user->name,$data["name"],"GetById is működik");
+
+
+
+        $users = $userModel->equal()->type(1);
+        $this->assertIsArray($users);
+
+        $this->assertNotEmpty($users,"Nem üres a lista tipus:1");
+        foreach ($users AS $user){
+            $this->assertIsObject($user);
+            break;
+        }
+        $userModel->deleteById($uid);
+        $user = $userModel->equal()->id($uid);
+        $this->assertEmpty($user,"Ki lett törölve az user");
+
+        $data = $this->newUserData(false);
+        $data->type = 1111;
+        $userModel->insert($data);
+        $user = $userModel->select($data)->line();
+        $this->assertEquals($user->name,$data->name);
+        $userModel->delete(["type"=>1111]);
+
+
+        $user = $userModel->select($data)->line();
+        $this->assertEmpty($user,"Törlés megy");
+
+
+
+
     }
 }

@@ -344,6 +344,9 @@ class dbClass
         if(isset($config["SAVECLASSDIR"]) && is_dir($config["SAVECLASSDIR"])){
             $this->_saveClassDir = $this->checkSlash($config["SAVECLASSDIR"]);
         }
+        if(isset($config["QUERYCLASSDIR"]) && is_dir($config["QUERYCLASSDIR"])){
+            $this->_saveClassDir = $this->checkSlash($config["QUERYCLASSDIR"]);
+        }
         if(isset($config["MODELDIR"]) && is_dir($config["MODELDIR"])){
             $this->_modelDir = $this->checkSlash($config["MODELDIR"]);
         }

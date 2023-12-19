@@ -146,6 +146,14 @@ abstract class dataModel
             return $this->db->query("SELECT *FROM `" . $this->_tablename . "` WHERE `" . $field . "`=?")->params($value)->rows();
         }
     }
+
+    /**
+     * @param array|object $where
+     * @return void
+     */
+    public function delete($where){
+        return $this->db->delete($this->_tablename,$where);
+    }
     protected function like(){
         return new $this->_likeclass($this);
     }

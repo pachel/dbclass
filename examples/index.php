@@ -6,8 +6,6 @@ use Pachel\dbClass;
 
 require_once __DIR__."/../vendor/autoload.php";
 
-require __DIR__."/inc/dolgozokModel.php";
-require __DIR__."/inc/__users.php";
 
 if(file_exists(__DIR__."/inc/dev_config.php")){
     require_once __DIR__ . "/inc/dev_config.php";

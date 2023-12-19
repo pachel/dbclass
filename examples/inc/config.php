@@ -20,7 +20,7 @@ $db_config = [
     "charset" => "utf8",
     "username" => "",
     "password" => "",
-    "saveClassDir" => __DIR__ . "/../Models/",
+    "queryClassDir" => __DIR__ . "/../Models/",
     "modelDir" => __DIR__ . "/../Models/",
     "default_result_mode" => dbClass::DB_RESULT_TYPE_OBJECT
 ];
