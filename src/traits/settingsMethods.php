@@ -94,6 +94,7 @@ trait settingsMethods
     protected function _setresultdefault(int $mode)
     {
         $this->DB_RESULT_TYPE_DEFAULT = $mode;
+        $this->settings()->setResultmodeToDefault();
     }
 
     protected function _setcache($seconds, $dir)

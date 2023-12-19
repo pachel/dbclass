@@ -8,9 +8,9 @@ abstract class CallbackBase
     protected $class = "";
 //    protected $arguments = [];
 
-    public function __construct($class)
+    public function __construct(&$class)
     {
-        $this->class = $class;
+        $this->class = &$class;
     }
     public function __call(string $name, array $arguments)
     {
