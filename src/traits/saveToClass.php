@@ -9,8 +9,9 @@ trait saveToClass
             new \Exception("Az opció nincs konfigurálva");
         }
         $debug = debug_backtrace();
-        $d = substr(md5(dirname($debug[count($debug)-1]["file"])),0,5);
-        $classname = "_line".$debug[count($debug)-1]["line"]."_".str_replace(".","_",basename($debug[count($debug)-1]["file"]))."_".$d;
+        $index = 2;
+        $d = substr(md5(dirname($debug[$index]["file"])),0,5);
+        $classname = "_line".$debug[$index]["line"]."_".str_replace(".","_",basename($debug[$index]["file"]))."_".$d;
         $data = $this->fromDatabase($this->_query_info->query, "@line",$this->_query_info->params);
         $properties = "";
         foreach ($data AS $key => $value){
