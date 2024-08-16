@@ -104,7 +104,7 @@ abstract class dataModel
      */
     public function updateById($data, $id)
     {
-        $this->db->update($this->table,$data, [$this->_primary=>$id]);
+        $this->db->update($this->_tablename,$data, [$this->_primary=>$id]);
     }
 
     /**
