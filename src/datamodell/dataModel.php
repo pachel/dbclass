@@ -47,6 +47,13 @@ abstract class dataModel
     protected $_likeclass;
     protected $_equalclass;
     protected $_eqclass;
+    protected $_upclass;
+
+    private $up_data = [
+      "params" => [],
+      "where"=>[],
+      "nxt"=>false
+    ];
 
     /**
      * @var dbClass $db
@@ -177,10 +184,38 @@ abstract class dataModel
      * @return mixed
      */
     protected function up(){
-        return new $this->_eqclass($this);
+        $this->up_data = [
+            "params" => [],
+            "where"=>[],
+            "nxt"=>false,
+        ];
+        return new $this->_upclass($this);
+    }
+    protected function _up($name,$value){
+        if($this->up_data["nxt"]){
+            $this->up_data["where"][$name] = $value;
+        }
+        else {
+            $this->up_data["params"][$name] = $value;
+        }
+        return new $this->_upclass($this);
+    }
+    protected function _where(){
+        $this->up_data["nxt"] = true;
+        return new $this->_upclass($this);
     }
     protected function equal(){
         return new $this->_equalclass($this);
+    }
+    protected function _exec(){
+        $ret = $this->db->update($this->_tablename,$this->up_data["params"],$this->up_data["where"]);
+        $this->up_data =[
+            "params" => [],
+            "where"=>[],
+            "nxt"=>false
+        ];
+        return $ret;
+        //return $this->db->toDatabase("SELECT *FROM `".$this->_tablename."` WHERE ".$where, $type,$params);
     }
     protected function _get(string $type)
     {

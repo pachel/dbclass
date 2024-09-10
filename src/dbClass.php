@@ -145,7 +145,6 @@ class dbClass
         $this->stoptime();
         if ($field == '@flat') {
             if ($result->rowCount()) {
-
                 while ($temp = $result->fetch(\PDO::FETCH_NUM)) {
                     $resultArray[] = $temp;
                 }

@@ -23,17 +23,25 @@ for($x=0;$x<50;$x++){
 //$db = Pachel\dbClass::instance();
 $db = new dbClass($db_config);
 
-$db->settings()->setResultmodeToObject();
-//$db->settings()->generateModelClass("__users");
+$db->settings()->setDefaultResultMode(dbClass::DB_RESULT_TYPE_OBJECT);
+$db->settings()->generateModelClass("__users");
 
 
 
 class users extends \Pachel\generatedModels\__usersModel {
 
 }
+
 $u = new users($db);
+$u->up()->name("asd asd asd asd asd asd")->where()->id(1)->exec();
+$u->update(["name"=>"eeee"])->id(2);
+//$u->up()->name("hgasda dasd ")->where()->type(2)->id(1)->exec();
+
+
 $k = $u->eq()->id(1)->line();
-echo $k->email;
+print_r($k);
+
+
 
 $k = $u->eq()->id(2)->line();
 echo $k->email."\n";

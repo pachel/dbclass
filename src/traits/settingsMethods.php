@@ -34,6 +34,7 @@ trait settingsMethods
         $text = "";
         $equal = "";
         $eq = "";
+        $up = "";
         $like = "";
         foreach ($result as $sor) {
            // $text .= "/**\n";
@@ -47,14 +48,16 @@ trait settingsMethods
             if ($this->isNum($type)) {
                 $equal .= " * @method " . $classname . "DataModel[] " . $sor->Field . "(" . $type . " \$" . $sor->Field . ")\n";
                 $eq .= " * @method " . $classname . "ModelEqSelect " . $sor->Field . "(" . $type . " \$" . $sor->Field . ")\n";
+                $up .= " * @method " . $classname . "ModelUpSelect " . $sor->Field . "(" . $type . " \$" . $sor->Field . ")\n";
             } else {
                 $equal .= " * @method " . $classname . "DataModel[] " . $sor->Field . "(" . $type . " \$" . $sor->Field . ")\n";
                 $eq .= " * @method " . $classname . "ModelEqSelect " . $sor->Field . "(" . $type . " \$" . $sor->Field . ")\n";
+                $up .= " * @method " . $classname . "ModelUpSelect " . $sor->Field . "(" . $type . " \$" . $sor->Field . ")\n";
                 $like .= " * @method " . $classname . "DataModel[] " . $sor->Field . "(" . $type . " \$" . $sor->Field . ")\n";
             }
         }
 
-        $content = str_replace(["#datum", "#table", "#primary", "#variables", "#classname", "#equalmethods", "#likemethods", "#eqmethods"], [date("Y-m-d H:i"), $table, $key, $text, $classname, $equal, $like,$eq], file_get_contents(__DIR__ . "/../../tpl/modelclass.tpl"));
+        $content = str_replace(["#datum", "#table", "#primary", "#variables", "#classname", "#equalmethods", "#likemethods", "#eqmethods", "#upmethods"], [date("Y-m-d H:i"), $table, $key, $text, $classname, $equal, $like,$eq,$up], file_get_contents(__DIR__ . "/../../tpl/modelclass.tpl"));
         file_put_contents($filename, $content);
     }
 
