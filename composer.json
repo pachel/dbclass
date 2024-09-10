@@ -22,7 +22,7 @@
             "classmap": ["src/"]
     },
     "autoload-dev": {
-            "classmap": ["examples/inc/"]
+            "classmap": ["examples/"]
     },
     "require-dev": {
         "phpunit/phpunit": "^9.6"

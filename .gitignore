@@ -1,10 +1,10 @@
 .idea
 vendor/
 composer.lock
-temp/*
 nbproject/
 inc/config.php
 local/
+temp/
 examples/inc/dev_*
 .htaccess
 .phpunit.cache

@@ -19,7 +19,10 @@ trait getMethods
     public function array()
     {
         return $this->class->_get("array");
-    }
+    }/*
+    public function cache(){
+
+    }*/
     public function saveToClass(){
         $this->class->_saveToClass();
     }

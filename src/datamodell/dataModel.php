@@ -46,6 +46,7 @@ abstract class dataModel
 
     protected $_likeclass;
     protected $_equalclass;
+    protected $_eqclass;
 
     /**
      * @var dbClass $db
@@ -146,6 +147,11 @@ abstract class dataModel
             return $this->db->query("SELECT *FROM `" . $this->_tablename . "` WHERE `" . $field . "`=?")->params($value)->rows();
         }
     }
+    private $_parameters = [];
+    protected function _eq($field,$value){
+        $this->_parameters[$field] = $value;
+        return new $this->_eqclass($this);
+    }
 
     /**
      * @param array|object $where
@@ -156,6 +162,22 @@ abstract class dataModel
     }
     protected function like(){
         return new $this->_likeclass($this);
+    }
+
+    /**
+     * Több feltételes lekérdezés
+     * @return mixed
+     */
+    protected function eq(){
+        return new $this->_eqclass($this);
+    }
+
+    /**
+     *
+     * @return mixed
+     */
+    protected function up(){
+        return new $this->_eqclass($this);
     }
     protected function equal(){
         return new $this->_equalclass($this);
@@ -176,7 +198,13 @@ abstract class dataModel
                 $type = "@row";
         }
         $params = [];
-        $where = $this->db->get_where($this->_data_tmp,$params);
+        if(!empty($this->_parameters)) {
+            $where = $this->db->get_where($this->_parameters, $params);
+            $this->_parameters = [];
+        }
+        else{
+            $where = $this->db->get_where($this->_data_tmp, $params);
+        }
         return $this->db->fromDatabase("SELECT *FROM `".$this->_tablename."` WHERE ".$where, $type,$params);
     }
 }

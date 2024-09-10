@@ -21,9 +21,30 @@ for($x=0;$x<50;$x++){
     echo "INSERT INTO `__users` (`name`,`type`,`email`) VALUES ('".$nev."','".mt_rand(0,10)."','".str_replace(" ","@",$nev).".fake');\n";
 }*/
 //$db = Pachel\dbClass::instance();
-$db = new dbClass();
-$db->settings()->connect($db_config,$db_options);
+$db = new dbClass($db_config);
+
 $db->settings()->setResultmodeToObject();
+//$db->settings()->generateModelClass("__users");
+
+
+
+class users extends \Pachel\generatedModels\__usersModel {
+
+}
+$u = new users($db);
+$k = $u->eq()->id(1)->line();
+echo $k->email;
+
+$k = $u->eq()->id(2)->line();
+echo $k->email."\n";
+$k = $u->eq()->type(9)->id(2)->rows();
+
+foreach ($k AS $item){
+    echo $item->id."\n";
+}
+
+exit();
+
 
 /**
  * @var _line33_index_php_bf69f[] $d

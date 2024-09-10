@@ -26,6 +26,7 @@ class dbClass
     protected $DB_RESULT_TYPE_DEFAULT = 0;
 
     private $_RESULT_TYPE;
+    private const _TEMP_DIR = __DIR__."/../temp/";
     private static $self = null;
     private $_timelog = false;
     private $_timelogFile = "";
