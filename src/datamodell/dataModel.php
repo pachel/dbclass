@@ -217,7 +217,7 @@ abstract class dataModel
         return $ret;
         //return $this->db->toDatabase("SELECT *FROM `".$this->_tablename."` WHERE ".$where, $type,$params);
     }
-    //s
+    //ss
     protected function _get(string $type)
     {
         switch ($type) {
