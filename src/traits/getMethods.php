@@ -12,6 +12,10 @@ trait getMethods
     {
         return $this->class->_get("rows");
     }
+    public function assoc()
+    {
+        return $this->class->_get("assoc");
+    }
     public function simple()
     {
         return $this->class->_get("simple");
