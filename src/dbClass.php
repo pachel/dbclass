@@ -177,6 +177,9 @@ class dbClass
                 return [];
             }
         }
+        /**
+         * Ez kell, nagyon hasznos ki sfunkció
+         */
         if ($field == '@assoc') {
             if ($result->rowCount()) {
                 while ($temp = $result->fetch(\PDO::FETCH_NUM)) {
