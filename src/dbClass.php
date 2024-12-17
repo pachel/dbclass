@@ -564,6 +564,9 @@ class dbClass
             case "simple":
                 $type = "@simple";
                 break;
+            case "assoc":
+                $type = "@assoc";
+                break;
             case "array":
                 $type = "@array";
                 break;
