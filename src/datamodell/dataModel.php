@@ -229,6 +229,9 @@ abstract class dataModel
             case "array":
                 $type = "@array";
                 break;
+            case "assoc":
+                $type = "@assoc";
+                break;
             default:
                 $type = "@row";
         }

@@ -177,6 +177,15 @@ class dbClass
                 return [];
             }
         }
+        if ($field == '@assoc') {
+            if ($result->rowCount()) {
+                while ($temp = $result->fetch(\PDO::FETCH_NUM)) {
+                    $resultArray[$temp[0]] = $temp[1];
+                }
+                goto end;
+                return ($resultArray);
+            }
+        }
         if ($field == '@group' && $id != null) {
             if ($result->rowCount()) {
                 while ($temp = $result->fetch(\PDO::FETCH_ASSOC)) {
