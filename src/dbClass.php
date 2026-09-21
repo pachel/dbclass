@@ -575,5 +575,8 @@ class dbClass
         }
         return $this->fromDatabase($this->_query_info->query, $type,$this->_query_info->params);
     }
-
+    protected function _getresultmode()
+    {
+        return $this->_RESULT_TYPE;
+    }
 }
