@@ -36,4 +36,7 @@ class settingsCallback extends CallbackBase{
     public function disconnect(){
         $this->class->disconnect();
     }
+    public function setCacheDir($dir){
+        $this->class->_setcachedir($dir);
+    }
 }

@@ -6,10 +6,12 @@
 
 namespace Pachel;
 
+use Pachel\dbClass\Callbacks\cacheCallback;
 use Pachel\dbClass\Callbacks\paramsCallback;
 use Pachel\dbClass\Callbacks\queryCallback;
 use Pachel\dbClass\Callbacks\settingsCallback;
 use Pachel\dbClass\dataModel\Traits\setget;
+use Pachel\dbClass\Models\cacheData;
 use Pachel\dbClass\Models\fieldList;
 use Pachel\dbClass\queryData;
 use Pachel\dbClass\Traits\saveToClass;
@@ -21,12 +23,13 @@ class dbClass
     protected $db_username = "", $db_password = "", $db_dsn = "";
     protected $pdo;
     public const
-        DB_RESULT_TYPE_ARRAY    = 0,
-        DB_RESULT_TYPE_OBJECT   = 1;
+        DB_RESULT_TYPE_ARRAY = 0,
+        DB_RESULT_TYPE_OBJECT = 1;
     protected $DB_RESULT_TYPE_DEFAULT = 0;
 
     private $_RESULT_TYPE;
-    private const _TEMP_DIR = __DIR__."/../temp/";
+    private const _TEMP_DIR = __DIR__ . "/../temp/";
+    private $cacheDir = null;
     private static $self = null;
     private $_timelog = false;
     private $_timelogFile = "";
@@ -34,7 +37,7 @@ class dbClass
     protected $cache = ["time" => 0, "dir" => null];
 
     /**
-     * @var queryData $_query_info;
+     * @var queryData $_query_info ;
      */
     private $_query_info;
 
@@ -46,6 +49,7 @@ class dbClass
     use settingsMethods;
     use setget;
     use saveToClass;
+
     public static function instance()
     {
 
@@ -65,9 +69,8 @@ class dbClass
 
         if (!empty($args)) {
             $this->connect($args[0], (!empty($args[1]) ? $args[1] : []));
-        }
-        else{
-            if(class_exists("Pachel\\EasyFrameWork\\Base")){
+        } else {
+            if (class_exists("Pachel\\EasyFrameWork\\Base")) {
                 $d = \Pachel\EasyFrameWork\Base::instance()->env("PDBCLASS");
                 $this->connect($d["SERVER"], (!empty($d["OPTIONS"]) ? $d["OPTIONS"] : []));
             }
@@ -83,9 +86,11 @@ class dbClass
     }
 
 
-    public function settings(){
+    public function settings()
+    {
         return new settingsCallback($this);
     }
+
     protected function getModell($name)
     {
         return new datamodell($name, $this);
@@ -119,8 +124,22 @@ class dbClass
         }
         $params = $this->objectToArray($params);
 
+        if ($this->_query_info->expire > 0) {
+            if (file_exists($this->cacheDir)) {
+                $filename = $this->cacheDir . md5($sql . serialize($field) . serialize($params) . serialize($id)) . ".cache";
+                /**
+                 * @var cacheData $data
+                 */
+                if(file_exists($filename)) {
+                    $data = unserialize(file_get_contents($filename));
+                    if ($data->expire > time()) {
+                        return $data->data;
+                    }
+                }
+            }
+        }
         if ($this->cache["time"] > 0) {
-            if(!is_dir($this->cache["dir"])){
+            if (!is_dir($this->cache["dir"])) {
                 mkdir($this->cache["dir"]);
             }
             $hash = md5($sql . serialize($field) . serialize($params) . serialize($id));
@@ -128,14 +147,13 @@ class dbClass
             if (is_file($file)) {
                 if ((time() - filemtime($file)) <= $this->cache["time"]) {
                     return unserialize(file_get_contents($file));
-                }
-                else{
+                } else {
                     unlink($file);
                 }
             }
 
         }
-        $this->starttime($sql,$params);
+        $this->starttime($sql, $params);
         $resultArray = array();
 
         $this->check_params($params, $sql);
@@ -169,7 +187,7 @@ class dbClass
         }
         if ($field == '@line') {
             if ($result->rowCount()) {
-                $resultArray = $result->fetch(($this->_RESULT_TYPE == self::DB_RESULT_TYPE_OBJECT?\PDO::FETCH_OBJ:\PDO::FETCH_ASSOC));
+                $resultArray = $result->fetch(($this->_RESULT_TYPE == self::DB_RESULT_TYPE_OBJECT ? \PDO::FETCH_OBJ : \PDO::FETCH_ASSOC));
                 goto end;
                 return ($resultArray);
             } else {
@@ -209,7 +227,7 @@ class dbClass
         }
         $i = 0;
         if ($result->rowCount()) {
-            while ($temp = $result->fetch(($this->_RESULT_TYPE == self::DB_RESULT_TYPE_OBJECT?\PDO::FETCH_OBJ:\PDO::FETCH_ASSOC))) {
+            while ($temp = $result->fetch(($this->_RESULT_TYPE == self::DB_RESULT_TYPE_OBJECT ? \PDO::FETCH_OBJ : \PDO::FETCH_ASSOC))) {
                 $resultArray[$i] = $temp;
                 $i++;
             }
@@ -219,9 +237,20 @@ class dbClass
 
         end:
         if ($this->cache["time"] > 0) {
-            file_put_contents($file,serialize($resultArray));
+            file_put_contents($file, serialize($resultArray));
+        }
+        if ($this->_query_info->expire > 0) {
+            if (file_exists($this->cacheDir)) {
+                $filename = $this->cacheDir . md5($sql . serialize($field) . serialize($params) . serialize($id)) . ".cache";
+                $data = new cacheData($resultArray,$this->_query_info->expire);
+                file_put_contents($filename, serialize($data));
+            }
         }
         return $resultArray;
+    }
+    protected function _setcachedir($dir)
+    {
+        $this->cacheDir = $dir;
     }
 
     /**
@@ -231,7 +260,7 @@ class dbClass
      */
     protected function toDatabase($sql, $params = array())
     {
-        $this->starttime($sql,$params);
+        $this->starttime($sql, $params);
         $mysql_queryPrepared = $this->pdo->prepare($sql);
         $mysql_queryReturn = $mysql_queryPrepared->execute($params);
         //do we have a db error?
@@ -244,17 +273,19 @@ class dbClass
         }
         return (true);
     }
+
     private function objectToArray($object)
     {
-        if(is_array($object)){
+        if (is_array($object)) {
             return $object;
         }
         $array = [];
-        foreach ($object AS $key=>$value){
+        foreach ($object as $key => $value) {
             $array[$key] = $value;
         }
         return $array;
     }
+
     /**
      * @param $array
      * @param $table
@@ -262,9 +293,10 @@ class dbClass
      */
     private function arrayToDatabase($array, $table, $id = array())
     {
-        if(is_object($array)){
+        if (is_object($array)) {
             $array = $this->objectToArray($array);
-        }if(is_object($id)){
+        }
+        if (is_object($id)) {
             $id = $this->objectToArray($id);
         }
         if (!is_array($array)) {
@@ -311,7 +343,7 @@ class dbClass
             $k = array_keys($id);
 
             //$query .= " WHERE " . $k[0] . "=:" . $k[0];
-            $query .= " WHERE " .$this->get_where($id,$array);
+            $query .= " WHERE " . $this->get_where($id, $array);
             //$array[$k[0]] = $id[$k[0]];
         }
 
@@ -334,8 +366,8 @@ class dbClass
             "USERNAME" => "",
             "PASSWORD" => ""
         ];
-        $c  = [];
-        foreach ($config as $index => $value){
+        $c = [];
+        foreach ($config as $index => $value) {
             $c[strtoupper($index)] = $value;
         }
         $config = $c;
@@ -347,26 +379,28 @@ class dbClass
                 $config[$index] = $value;
             }
         }
-        if(isset($config["DEFAULT_RESULT_MODE"]) && is_numeric($config["DEFAULT_RESULT_MODE"])){
+        if (isset($config["DEFAULT_RESULT_MODE"]) && is_numeric($config["DEFAULT_RESULT_MODE"])) {
             $this->settings()->setDefaultResultMode($config["DEFAULT_RESULT_MODE"]);
         }
 
         $this->_RESULT_TYPE = $this->DB_RESULT_TYPE_DEFAULT;
 
-        if(isset($config["SAVECLASSDIR"]) && is_dir($config["SAVECLASSDIR"])){
+        if (isset($config["SAVECLASSDIR"]) && is_dir($config["SAVECLASSDIR"])) {
             $this->_saveClassDir = $this->checkSlash($config["SAVECLASSDIR"]);
         }
-        if(isset($config["QUERYCLASSDIR"]) && is_dir($config["QUERYCLASSDIR"])){
+        if (isset($config["QUERYCLASSDIR"]) && is_dir($config["QUERYCLASSDIR"])) {
             $this->_saveClassDir = $this->checkSlash($config["QUERYCLASSDIR"]);
         }
-        if(isset($config["MODELDIR"]) && is_dir($config["MODELDIR"])){
+        if (isset($config["MODELDIR"]) && is_dir($config["MODELDIR"])) {
             $this->_modelDir = $this->checkSlash($config["MODELDIR"]);
         }
         $this->db_username = $config["USERNAME"];
         $this->db_password = $config["PASSWORD"];
         $this->db_dsn = 'mysql:host=' . $config['HOST'] . ';dbname=' . $config['DBNAME'] . ";charset=" . $config['CHARSET'];
     }
-    private function checkSlash($dir) {
+
+    private function checkSlash($dir)
+    {
         if (mb_substr($dir, strlen($dir) - 1, 1) == "/") {
             return $dir;
         }
@@ -426,8 +460,8 @@ class dbClass
      */
     public function delete($table, $where)
     {
-        $sql = "DELETE FROM `" . $table . "` WHERE " . $this->get_where($where,$params);
-        return $this->toDatabase($sql,$params);
+        $sql = "DELETE FROM `" . $table . "` WHERE " . $this->get_where($where, $params);
+        return $this->toDatabase($sql, $params);
     }
 
     /**
@@ -460,16 +494,15 @@ class dbClass
         if (is_array($where)) {
             $counter = 0;
             foreach ($where as $index => $value) {
-                $sid = "RND".$this->get_random_string(20);
+                $sid = "RND" . $this->get_random_string(20);
                 if ($counter > 0) {
                     $string .= " AND ";
                 }
-                if(empty($params)){
-                    $params_copy[$sid] =$value;
-                    $string .= "`" . $index . "`" . (is_numeric($value) ? "=" . $value : " LIKE '" . $value."'");
-                   // $string .= "`" . $index . "`=:" .$sid;
-                }
-                else {
+                if (empty($params)) {
+                    $params_copy[$sid] = $value;
+                    $string .= "`" . $index . "`" . (is_numeric($value) ? "=" . $value : " LIKE '" . $value . "'");
+                    // $string .= "`" . $index . "`=:" .$sid;
+                } else {
                     $string .= "`" . $index . "`" . (is_numeric($value) ? "=:" . $sid : " LIKE :" . $sid);
                     $params[$sid] = $value;
                 }
@@ -478,10 +511,9 @@ class dbClass
         } else {
             $string = $where;
         }
-       // $params = $params_copy;
+        // $params = $params_copy;
         return $string;
     }
-
 
 
     public function __destruct()
@@ -489,28 +521,32 @@ class dbClass
         $this->disconnect();
     }
 
-    private function starttime($sql,$params){
-        if(!$this->_timelog){
+    private function starttime($sql, $params)
+    {
+        if (!$this->_timelog) {
             return;
         }
         $this->_timeinfo = [
-            "sql"=>$sql,
-            "params"=>$params
+            "sql" => $sql,
+            "params" => $params
         ];
         // echo microtime(true);
         $this->_time = microtime(true);
     }
-    private function stoptime(){
-        if(!$this->_timelog){
+
+    private function stoptime()
+    {
+        if (!$this->_timelog) {
             return;
         }
-        $time = round((microtime(true)-$this->_time),4);
+        $time = round((microtime(true) - $this->_time), 4);
         $debug = debug_backtrace();
-        foreach ($debug AS $sor){
-            file_put_contents($this->_timelogFile,"FILE:".$sor["file"].":(".$sor["line"].")".$sor["function"]."()\n",FILE_APPEND);
+        foreach ($debug as $sor) {
+            file_put_contents($this->_timelogFile, "FILE:" . $sor["file"] . ":(" . $sor["line"] . ")" . $sor["function"] . "()\n", FILE_APPEND);
         }
-        file_put_contents($this->_timelogFile,"TIME:".$time."s\n",FILE_APPEND);
+        file_put_contents($this->_timelogFile, "TIME:" . $time . "s\n", FILE_APPEND);
     }
+
     private function get_random_string($count = 10, $chars = "qwertzuioplkjhgfdsayxcvbnm0123456789QWERTZUIOPLKJHGFDSAYXCVBNM")
     {
         $string = "";
@@ -524,29 +560,70 @@ class dbClass
     {
         return $this->pdo->lastInsertId();
     }
+
     public function __call($name, $arguments)
     {
         if (method_exists($this, $name)) {
             return $this->$name(...$arguments);
         }
     }
+
     public function query($sql)
     {
         $this->_query_info->query = $sql;
         $this->_query_info->params = [];
+        $this->_query_info->expire = 0;
 
         return new queryCallback($this);
     }
-    protected function _exec(){
-        return $this->toDatabase($this->_query_info->query,$this->_query_info->params);
+
+    protected function _exec()
+    {
+        return $this->toDatabase($this->_query_info->query, $this->_query_info->params);
     }
-    protected function _params(){
+
+    protected function _cache($expire)
+    {
+        $this->_query_info->expire = $this->getTimeInSeconds($expire);
+        return new cacheCallback($this);
+    }
+
+    private function getTimeInSeconds($time)
+    {
+        if (is_numeric($time)) {
+            return $time;
+        }
+        if (preg_match("/([0-9]+)(.+)/", $time, $m)) {
+            switch ($m[2]) {
+                case "s":
+                    $time = $m[1];
+                    break;
+                case "m":
+                    $time = $m[1] * 60;
+                    break;
+                case "h":
+                    $time = $m[1] * 3600;
+                    break;
+                case "d":
+                    $time = $m[1] * 3600 * 24;
+                    break;
+                case "w":
+                    $time = $m[1] * 3600 * 24 * 7;
+                    break;
+            }
+            return $time;
+        }
+
+    }
+
+    protected function _params()
+    {
         $args = func_get_args();
-        foreach ($args AS $arg){
-            if(is_array($arg)){
+        foreach ($args as $arg) {
+            if (is_array($arg)) {
                 $params = $arg;
                 break;
-            }elseif(is_object($arg)){
+            } elseif (is_object($arg)) {
                 $params = $this->objectToArray($arg);
                 break;
             }
@@ -555,6 +632,7 @@ class dbClass
         $this->_query_info->params = $params;
         return new paramsCallback($this);
     }
+
     protected function _get(string $type)
     {
         switch ($type) {
@@ -573,8 +651,9 @@ class dbClass
             default:
                 $type = "@row";
         }
-        return $this->fromDatabase($this->_query_info->query, $type,$this->_query_info->params);
+        return $this->fromDatabase($this->_query_info->query, $type, $this->_query_info->params);
     }
+
     protected function _getresultmode()
     {
         return $this->_RESULT_TYPE;

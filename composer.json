@@ -25,6 +25,6 @@
             "classmap": ["examples/"]
     },
     "require-dev": {
-        "phpunit/phpunit": "^9.6"
+        "phpunit/phpunit": "^8.5"
     }
 }
